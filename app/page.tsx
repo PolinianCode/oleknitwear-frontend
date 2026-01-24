@@ -10,7 +10,7 @@ const slides = [
     title: "Warmth You Can Feel",
     subtitle: "HANDMADE WITH LOVE",
     buttonText: "Shop Collection",
-    isButtonPresent: true
+    isButtonPresent: true,
   },
   {
     id: 2,
@@ -18,8 +18,9 @@ const slides = [
     alt: "Уютный вязаный свитер",
     title: "Soft Handmaded wool",
     subtitle: "PREMIUM MATERIALS",
-    buttonText: "Explore materials",
-    isButtonPresent: true
+    buttonText: "Explore care",
+    isButtonPresent: true,
+    buttonLink: '/care'
   }
 ]
 
