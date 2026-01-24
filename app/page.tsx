@@ -1,3 +1,4 @@
+import Advantages from "@/components/Advantages"
 import HeroSlider from "@/components/HeroSlider"
 import OurStory from "@/components/OurHistory"
 
@@ -27,6 +28,7 @@ export default function Home() {
     <>
       <HeroSlider slides={slides} />
       <OurStory />
+      <Advantages />
     </>
   )
 }
