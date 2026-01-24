@@ -10,6 +10,7 @@ interface HeroSliderProps {
         id: number;
         src: string;
         alt: string;
+        isButtonPresent: boolean;
         title?: string;
         subtitle?: string;
         buttonText?: string;
@@ -62,10 +63,12 @@ export default function HeroSlider({ slides }: HeroSliderProps) {
                             <h2 className="max-w-3xl text-4xl md:text-6xl font-serif mb-8 leading-tight">
                                 {slide.title}
                             </h2>
-                            <button className="group relative overflow-hidden bg-white px-8 py-3.5 rounded-full text-stone-900 transition-all hover:pr-12 active:scale-95">
-                                <span className="font-medium">Смотреть коллекцию</span>
+                            {slide.isButtonPresent && (
+                            <button className="group relative overflow-hidden bg-white px-8 py-3.5 rounded-full text-stone-900 transition-all hover:pr-12 active:scale-95 hover:cursor-pointer">
+                                <span className="font-medium">{slide.buttonText}</span>
                                 <span className="absolute right-4 opacity-0 transition-all group-hover:opacity-100"> → </span>
-                            </button>
+                            </button>  
+                            )}
                         </div>
                     </div>
                 ))}
