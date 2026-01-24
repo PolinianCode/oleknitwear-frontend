@@ -1,0 +1,92 @@
+import Link from "next/link"
+import { Facebook, Instagram } from "lucide-react"
+
+export default function Footer() {
+    return (
+        <footer className="bg-brand pt-16 pb-8 text-white">
+            <div className="container mx-auto px-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-16">
+
+                    <div className="space-y-6">
+                        <h3 className="text-xs font-bold tracking-[0.2em] uppercase font-sans">
+                            Contact
+                        </h3>
+                        <p className="text-sm leading-loose text-white/80 font-sans max-w-xs">
+                            If you would like to get in touch with us, feel free to reach out by email or phone.
+                            We’d be happy to assist you with any inquiries.
+                        </p>
+                        <div className="space-y-2 text-sm font-sans">
+                            <a 
+                                href="mailto:lekoval@gmail.com" 
+                                className="block hover:translate-x-1 transition-transform border-b border-transparent hover:border-white/40 w-fit"
+                            >
+                                lekoval@gmail.com
+                            </a>
+                            <a 
+                                href="tel:+380631099202" 
+                                className="block hover:translate-x-1 transition-transform"
+                            >
+                                +380 63 109 9202
+                            </a>
+                        </div>
+                    </div>
+
+                    {/* NAVIGATION */}
+                    <div className="space-y-6">
+                        <h3 className="text-xs font-bold tracking-[0.2em] uppercase font-sans">
+                            Navigation
+                        </h3>
+                        <nav className="flex flex-col gap-4 text-sm font-sans text-white/90">
+                            <Link href="/search" className="hover:opacity-70 transition-opacity">
+                                Search
+                            </Link>
+                            <Link href="/contact" className="hover:opacity-70 transition-opacity">
+                                Contact
+                            </Link>
+                            <Link href="/sizing-delivery" className="hover:opacity-70 transition-opacity">
+                                Sizing guide & Delivery terms
+                            </Link>
+                            <Link href="/care" className="hover:opacity-70 transition-opacity">
+                                Take Care
+                            </Link>
+                        </nav>
+                    </div>
+
+                    {/* SOCIALS */}
+                    <div className="space-y-6">
+                        <h3 className="text-xs font-bold tracking-[0.2em] uppercase font-sans">
+                            Follow Us
+                        </h3>
+                        <div className="flex gap-6 items-center">
+                            <a 
+                                href="https://facebook.com" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="hover:scale-110 transition-transform opacity-90 hover:opacity-100"
+                                aria-label="Facebook"
+                            >
+                                <Facebook size={20} strokeWidth={1.5} />
+                            </a>
+                            <a 
+                                href="https://instagram.com/ole.knitwear" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="hover:scale-110 transition-transform opacity-90 hover:opacity-100"
+                                aria-label="Instagram"
+                            >
+                                <Instagram size={20} strokeWidth={1.5} />
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] uppercase tracking-[0.2em] text-white/50 font-sans">
+                    <p>© {new Date().getFullYear()} Ole Knitwear. All rights reserved.</p>
+                    <p className="italic font-serif normal-case tracking-normal text-sm text-white/70">
+                        Made with love by Oleknitwear
+                    </p>
+                </div>
+            </div>
+        </footer>
+    )
+}
