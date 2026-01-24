@@ -11,6 +11,7 @@ export default function OurStory() {
                             src="/images/about.jpg"
                             alt="Olesia Bruskova knitting"
                             fill
+                            sizes='(max-width: 400px) 100vw, (max-width: 1200px) 50vw, 33vw'
                             className="object-cover transition-transform duration-700 hover:scale-105"
                             priority
                         />
