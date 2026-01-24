@@ -1,4 +1,5 @@
 import HeroSlider from "@/components/HeroSlider"
+import OurStory from "@/components/OurHistory"
 
 const slides = [
   {
@@ -6,12 +7,18 @@ const slides = [
     src: "/images/slide3.png",
     alt: "Уютный вязаный свитер",
     title: "Warmth You Can Feel",
-    subtitle: "HANDMADE WITH LOVE"
+    subtitle: "HANDMADE WITH LOVE",
+    buttonText: "Shop Collection",
+    isButtonPresent: true
   },
   {
     id: 2,
     src: "/images/slide2.png",
     alt: "Уютный вязаный свитер",
+    title: "Soft Handmaded wool",
+    subtitle: "PREMIUM MATERIALS",
+    buttonText: "Explore materials",
+    isButtonPresent: true
   }
 ]
 
@@ -19,6 +26,7 @@ export default function Home() {
   return (
     <>
       <HeroSlider slides={slides} />
+      <OurStory />
     </>
   )
 }

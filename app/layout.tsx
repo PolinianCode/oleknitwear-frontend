@@ -4,6 +4,7 @@ import "./globals.css";
 
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
+import FreeDelivery from "@/components/FreeDelivery";
 
 
 const inter = Inter({ 
@@ -25,6 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ru" className={`${inter.variable} ${playfair.variable}`}>
       <body className="font-sans antialiased bg-stone-50 text-stone-900">
+        <FreeDelivery />
         <Header />
         <main>{children}</main>
         <Footer />

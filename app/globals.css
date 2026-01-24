@@ -1,1 +1,5 @@
 @import "tailwindcss";
+
+@theme inline {
+  --color-brand: #DA599A;
+}
