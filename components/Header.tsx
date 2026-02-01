@@ -40,7 +40,7 @@ export default function Header() {
     >
       <div className="container mx-auto px-4 flex items-center justify-between relative">
         
-        <nav className="hidden md:flex items-center gap-8 text-[10px] uppercase tracking-[0.2em] font-bold">
+        <nav className="hidden md:flex items-center gap-8 text-[12px] uppercase tracking-[0.2em] font-bold">
           <Link href="/shop" className="hover:text-brand transition-colors">Shop</Link>
           <Link href="/care" className="hover:text-brand transition-colors">Care Guide</Link>
         </nav>
@@ -75,7 +75,7 @@ export default function Header() {
           <div className="relative">
             <button 
               onClick={() => setIsCurrencyOpen(!isCurrencyOpen)}
-              className="flex items-center gap-1 text-[10px] font-bold tracking-widest uppercase hover:text-brand transition-colors hover:cursor-pointer"
+              className="flex items-center gap-1 text-[12px] font-bold tracking-widest uppercase hover:text-brand transition-colors hover:cursor-pointer"
             >
               {currency}
               <ChevronDown 
@@ -96,7 +96,7 @@ export default function Header() {
                         setCurrency(item.code);
                         setIsCurrencyOpen(false);
                       }}
-                      className={`w-full text-left px-4 py-3 text-[10px] uppercase tracking-widest transition-colors flex hover:cursor-pointer justify-between items-center ${
+                      className={`w-full text-left px-4 py-3 text-[12px] uppercase tracking-widest transition-colors flex hover:cursor-pointer justify-between items-center ${
                         currency === item.code ? "text-brand bg-stone-50" : "text-stone-600 hover:bg-stone-50 hover:text-brand"
                       }`}
                     >

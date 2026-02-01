@@ -1,4 +1,5 @@
 import Advantages from "@/components/Advantages"
+import FeaturedCollection from "@/components/FeaturedCollection"
 import HeroSlider from "@/components/HeroSlider"
 import OurStory from "@/components/OurHistory"
 
@@ -28,6 +29,7 @@ export default function Home() {
   return (
     <>
       <HeroSlider slides={slides} />
+      <FeaturedCollection />
       <OurStory />
       <Advantages />
     </>
