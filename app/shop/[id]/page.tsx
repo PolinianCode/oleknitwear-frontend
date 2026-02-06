@@ -1,11 +1,12 @@
 "use client";
 
 import { products } from "@/data/products";
-import { useState, use } from "react";
+import { useState, use, useEffect } from "react";
 import { useCart } from "@/app/context/CartContex";
 import Link from "next/link"
 import { ChevronRight, Heart, Minus, Plus } from "lucide-react";
 import ProductGallery from "@/components/products/ProductGallery";
+import RecentlyViewed from "@/components/products/RecentlyViewed";
 
 export default function ProductPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
@@ -46,6 +47,19 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
       "itemCondition": "https://schema.org/NewCondition"
     }
   };
+
+  useEffect(() => {
+    if (product) {
+      const recentlyViewed = JSON.parse(localStorage.getItem("recently_viewed") || "[]");
+
+      const updatedList = [
+        product.id,
+        ...recentlyViewed.filter((id: number) => id !== product.id)
+      ].slice(0, 4);
+
+      localStorage.setItem("recently_viewed", JSON.stringify(updatedList));
+    }
+  }, [product]);
 
   const sizes = ["S", "M", "L", "Custom"];
 
@@ -141,9 +155,11 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
               </div>
 
             </div>
+
           </div>
         </div>
       </div>
+      <RecentlyViewed />
     </main>
   );
 }

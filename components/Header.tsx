@@ -50,6 +50,7 @@ export default function Header() {
     { code: "PLN" },
     { code: "UAH" },
     { code: "USD" },
+    { code: "EUR" },
   ];
 
   const headerBg = isMenuOpen
