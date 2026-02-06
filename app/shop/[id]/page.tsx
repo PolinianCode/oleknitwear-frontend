@@ -2,6 +2,7 @@
 
 import { products } from "@/data/products";
 import { useState, use } from "react";
+import { useCart } from "@/app/context/CartContex";
 import Link from "next/link"
 import { ChevronRight, Heart, Minus, Plus } from "lucide-react";
 import ProductGallery from "@/components/products/ProductGallery";
@@ -13,13 +14,25 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const [selectedSize, setSelectedSize] = useState("M");
   const [quantity, setQuantity] = useState(1);
 
+  const { addToCart } = useCart()
+
+  const handleAddToCart = () => {
+    addToCart({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      size: selectedSize,
+      quantity: quantity,
+      image: product.images[0],
+    });
+  };
+
   const sizes = ["S", "M", "L", "Custom"];
 
   return (
     <main className="bg-white min-h-screen pt-24 md:pt-32 pb-20 font-sans">
       <div className="container mx-auto px-4">
 
-        {/* Хлебные крошки */}
         <nav className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-stone-400 mb-8">
           <Link href="/shop">Shop</Link> <ChevronRight size={10} />
           <Link href={`/shop?cat=${product.category}`}>{product.category}</Link> <ChevronRight size={10} />
@@ -28,12 +41,10 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
 
         <div className="flex flex-col lg:flex-row gap-12 xl:gap-24">
 
-          {/* ГАЛЕРЕЯ (Левая сторона) */}
           <div className="flex-1 space-y-4">
             <ProductGallery images={product.images} name={product.name} />
           </div>
 
-          {/* ИНФОРМАЦИЯ (Правая сторона - Sticky) */}
           <div className="lg:w-[400px]">
             <div className="lg:sticky lg:top-32 space-y-8">
 
@@ -50,7 +61,6 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                 {product.description}
               </p>
 
-              {/* Выбор размера */}
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
                   <span className="text-[10px] font-bold uppercase tracking-widest">Select Size</span>
@@ -72,14 +82,13 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                 </div>
               </div>
 
-              {/* Кол-во и Покупка */}
               <div className="flex gap-4">
                 <div className="flex items-center border border-stone-200 px-4">
                   <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="p-2"><Minus size={14} /></button>
                   <span className="w-8 text-center text-sm">{quantity}</span>
                   <button onClick={() => setQuantity(quantity + 1)} className="p-2"><Plus size={14} /></button>
                 </div>
-                <button className="flex-1 bg-brand text-white py-4 text-[10px] font-bold uppercase tracking-[0.2em] hover:brightness-110 transition-all active:scale-95 shadow-lg">
+                <button onClick={handleAddToCart} className="flex-1 bg-brand text-white py-4 text-[10px] font-bold uppercase tracking-[0.2em] hover:brightness-110 transition-all active:scale-95 shadow-lg">
                   Add to Bag
                 </button>
                 <button className="p-4 border border-stone-200 hover:bg-stone-50 transition-colors">
@@ -87,7 +96,6 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                 </button>
               </div>
 
-              {/* Аккордеон (Состав / Доставка) */}
               <div className="border-t border-stone-100 pt-6 space-y-4">
                 <details className="group cursor-pointer">
                   <summary className="flex justify-between items-center list-none text-[10px] font-bold uppercase tracking-widest">
