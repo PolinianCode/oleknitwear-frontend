@@ -2,7 +2,7 @@ export default function CareGuide() {
     return (
         <main className="bg-stone-50 min-h-screen py-20 md:py-32">
             <div className="container mx-auto px-4 max-w-3xl">
-                
+
                 <header className="text-center mb-20">
                     <span className="text-brand uppercase tracking-[0.3em] text-xs font-sans font-bold mb-4 block">
                         Preserving the Craft
@@ -12,12 +12,12 @@ export default function CareGuide() {
                         <span className="italic">Hand-Knitted Treasure</span>
                     </h1>
                     <p className="text-stone-600 font-sans leading-relaxed italic text-lg border-l-2 border-brand/30 pl-6 py-2 max-w-2xl mx-auto text-left">
-                        "Every piece in our collection is created slowly — stitch by stitch, hour by hour. Treat them the way you would treat art."
+                        &quot;Every piece in our collection is created slowly — stitch by stitch, hour by hour. Treat them the way you would treat art.&quot;
                     </p>
                 </header>
 
                 <div className="space-y-16">
-                    
+
                     <section className="grid grid-cols-1 md:grid-cols-[100px_1fr] gap-6 items-start">
                         <span className="text-brand font-serif italic text-4xl opacity-50">01</span>
                         <div>
@@ -52,7 +52,7 @@ export default function CareGuide() {
                         <h3 className="text-xs uppercase tracking-widest text-brand font-bold mb-8 font-sans">Essential Rituals</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                             <div>
-                                <h4 className="font-serif italic text-xl mb-2 text-stone-900">Rest, Don’t Hang</h4>
+                                <h4 className="font-serif italic text-xl mb-2 text-stone-900">Rest, Don&apos;t Hang</h4>
                                 <p className="text-stone-600 text-sm font-sans leading-relaxed">
                                     Never hang a hand-knitted garment. Gravity is not its friend. Fold it gently and store it in a breathable space.
                                 </p>
