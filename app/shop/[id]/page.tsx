@@ -27,10 +27,34 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     });
   };
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": product.name,
+    "image": product.images.map(img => `https://ole-knitwear.com${img}`),
+    "description": product.description,
+    "brand": {
+      "@type": "Brand",
+      "name": "Ole Knitwear"
+    },
+    "offers": {
+      "@type": "Offer",
+      "url": `https://ole-knitwear.com/shop/${product.id}`,
+      "priceCurrency": "EUR",
+      "price": product.price,
+      "availability": "https://schema.org/InStock",
+      "itemCondition": "https://schema.org/NewCondition"
+    }
+  };
+
   const sizes = ["S", "M", "L", "Custom"];
 
   return (
     <main className="bg-white min-h-screen pt-24 md:pt-32 pb-20 font-sans">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className="container mx-auto px-4">
 
         <nav className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-stone-400 mb-8">

@@ -27,8 +27,24 @@ const slides = [
 ]
 
 export default function Home() {
+
+  const organizationJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Brand",
+    "name": "Ole Knitwear",
+    "url": "https://ole-knitwear.com",
+    "logo": "https://ole-knitwear.com/images/logo.png",
+    "sameAs": [
+      "https://instagram.com/ole.knitwear",
+    ]
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+      />
       <HeroSlider slides={slides} />
       <FeaturedCollection />
       <OurStory />
