@@ -11,6 +11,7 @@ const slides = [
     title: "Warmth You Can Feel",
     subtitle: "HANDMADE WITH LOVE",
     buttonText: "Shop Collection",
+    buttonLink: '/shop',
     isButtonPresent: true,
   },
   {
