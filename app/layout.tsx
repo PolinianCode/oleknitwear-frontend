@@ -6,13 +6,15 @@ import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import FreeDelivery from "@/components/FreeDelivery";
 import PageTransition from "@/components/PageTransition";
+import { CartProvider } from "./context/CartContex";
+import SideCart from "@/components/Cart/SideCart";
 
-const inter = Inter({ 
+const inter = Inter({
   subsets: ["cyrillic", "latin"],
   variable: "--font-inter",
 });
 
-const playfair = Playfair_Display({ 
+const playfair = Playfair_Display({
   subsets: ["cyrillic", "latin"],
   variable: "--font-serif",
 });
@@ -26,14 +28,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ru" className={`${inter.variable} ${playfair.variable}`}>
       <body className="font-sans antialiased bg-stone-50 text-stone-900">
-        <FreeDelivery />
-        <Header />
-        <main>
-          <PageTransition>
-            {children}
-          </PageTransition>
-        </main>
-        <Footer />
+        <CartProvider>
+          <FreeDelivery />
+          <Header />
+          <SideCart />
+          <main>
+            <PageTransition>
+              {children}
+            </PageTransition>
+          </main>
+          <Footer />
+        </CartProvider>
       </body>
     </html>
   );

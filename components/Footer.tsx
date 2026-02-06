@@ -16,14 +16,14 @@ export default function Footer() {
                             We’d be happy to assist you with any inquiries.
                         </p>
                         <div className="space-y-2 text-sm font-sans">
-                            <a 
-                                href="mailto:lekoval@gmail.com" 
+                            <a
+                                href="mailto:lekoval@gmail.com"
                                 className="block hover:translate-x-1 transition-transform border-b border-transparent hover:border-white/40 w-fit"
                             >
                                 lekoval@gmail.com
                             </a>
-                            <a 
-                                href="tel:+380631099202" 
+                            <a
+                                href="tel:+380631099202"
                                 className="block hover:translate-x-1 transition-transform"
                             >
                                 +380 63 109 9202
@@ -40,7 +40,7 @@ export default function Footer() {
                             <Link href="/search" className="hover:opacity-70 transition-opacity">
                                 Search
                             </Link>
-                            <Link href="/contact" className="hover:opacity-70 transition-opacity">
+                            <Link href="/contact-us" className="hover:opacity-70 transition-opacity">
                                 Contact
                             </Link>
                             <Link href="/sizing-delivery" className="hover:opacity-70 transition-opacity">
@@ -58,18 +58,18 @@ export default function Footer() {
                             Follow Us
                         </h3>
                         <div className="flex gap-6 items-center">
-                            <a 
-                                href="https://facebook.com" 
-                                target="_blank" 
+                            <a
+                                href="https://facebook.com"
+                                target="_blank"
                                 rel="noopener noreferrer"
                                 className="hover:scale-110 transition-transform opacity-90 hover:opacity-100"
                                 aria-label="Facebook"
                             >
                                 <Facebook size={20} strokeWidth={1.5} />
                             </a>
-                            <a 
-                                href="https://instagram.com/ole.knitwear" 
-                                target="_blank" 
+                            <a
+                                href="https://instagram.com/ole.knitwear"
+                                target="_blank"
                                 rel="noopener noreferrer"
                                 className="hover:scale-110 transition-transform opacity-90 hover:opacity-100"
                                 aria-label="Instagram"
