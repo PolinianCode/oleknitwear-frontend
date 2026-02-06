@@ -4,6 +4,7 @@ import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from 'embla-carousel-autoplay';
 import Image from "next/image";
 import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 interface HeroSliderProps {
     slides: {
@@ -15,13 +16,14 @@ interface HeroSliderProps {
         subtitle?: string;
         buttonText?: string;
         buttonLink?: string;
-        buttonAction?: () => ({});
     }[]
 }
 
 export default function HeroSlider({ slides }: HeroSliderProps) {
     const [selectedIndex, setSelectedIndex] = useState(0);
     
+    const router = useRouter()
+
     const [emblaRef, emblaApi] = useEmblaCarousel(
         { loop: true, duration: 40 }, 
         [Autoplay({ delay: 5000, stopOnInteraction: false })]
@@ -64,7 +66,7 @@ export default function HeroSlider({ slides }: HeroSliderProps) {
                                 {slide.title}
                             </h2>
                             {slide.isButtonPresent && (
-                            <button className="group relative overflow-hidden bg-white px-8 py-3.5 rounded-full text-stone-900 transition-all hover:pr-12 active:scale-95 hover:cursor-pointer">
+                            <button onClick={() => router.push(slide.buttonLink || "")} className="group relative overflow-hidden bg-white px-8 py-3.5 rounded-full text-stone-900 transition-all hover:pr-12 active:scale-95 hover:cursor-pointer">
                                 <span className="font-medium">{slide.buttonText}</span>
                                 <span className="absolute right-4 opacity-0 transition-all group-hover:opacity-100"> → </span>
                             </button>  

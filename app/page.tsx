@@ -1,4 +1,5 @@
 import Advantages from "@/components/Advantages"
+import FeaturedCollection from "@/components/FeaturedCollection"
 import HeroSlider from "@/components/HeroSlider"
 import OurStory from "@/components/OurHistory"
 
@@ -10,7 +11,7 @@ const slides = [
     title: "Warmth You Can Feel",
     subtitle: "HANDMADE WITH LOVE",
     buttonText: "Shop Collection",
-    isButtonPresent: true
+    isButtonPresent: true,
   },
   {
     id: 2,
@@ -18,8 +19,9 @@ const slides = [
     alt: "Уютный вязаный свитер",
     title: "Soft Handmaded wool",
     subtitle: "PREMIUM MATERIALS",
-    buttonText: "Explore materials",
-    isButtonPresent: true
+    buttonText: "Explore care",
+    isButtonPresent: true,
+    buttonLink: '/care'
   }
 ]
 
@@ -27,6 +29,7 @@ export default function Home() {
   return (
     <>
       <HeroSlider slides={slides} />
+      <FeaturedCollection />
       <OurStory />
       <Advantages />
     </>
