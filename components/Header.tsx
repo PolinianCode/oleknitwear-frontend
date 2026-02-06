@@ -18,7 +18,12 @@ export default function Header() {
   const isHome = pathname === "/";
 
   useEffect(() => {
-    setIsMenuOpen(false);
+    const closeMenu = () => setIsMenuOpen(false);
+
+    if (isMenuOpen) {
+      closeMenu();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
   useEffect(() => {
