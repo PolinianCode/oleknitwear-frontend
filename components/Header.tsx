@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useCart } from "@/app/context/CartContex";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -8,6 +9,7 @@ import { ShoppingBag, ChevronDown, Menu, X } from "lucide-react";
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
+  const { setIsCartOpen, cart } = useCart();
   const [currency, setCurrency] = useState("USD");
   const [isCurrencyOpen, setIsCurrencyOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -69,6 +71,7 @@ export default function Header() {
         <nav className="hidden md:flex items-center gap-8 text-[12px] uppercase tracking-[0.2em] font-bold">
           <Link href="/shop" className="hover:text-brand transition-colors">Shop</Link>
           <Link href="/care" className="hover:text-brand transition-colors">Care Guide</Link>
+          <Link href="/contact-us" className="hover:text-brand transition-colors">Contact Us</Link>
         </nav>
 
         <div className="absolute left-1/2 -translate-x-1/2">
@@ -87,14 +90,14 @@ export default function Header() {
 
         <div className="flex items-center gap-6">
 
-          <button className="relative group flex items-center">
+          <button className="relative group flex items-center" onClick={() => setIsCartOpen(true)}>
             <ShoppingBag
               size={20}
               strokeWidth={1.5}
               className="group-hover:text-brand transition-colors"
             />
             <span className={`absolute -top-2 -right-2 bg-brand text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold transition-transform group-hover:scale-110`}>
-              0
+              {cart.length}
             </span>
           </button>
 
@@ -149,6 +152,7 @@ export default function Header() {
         <nav className="flex flex-col p-8 gap-8 mt-10">
           <Link href="/shop" className="text-3xl font-serif text-stone-900 border-b border-stone-100 pb-4">Shop</Link>
           <Link href="/care" className="text-3xl font-serif text-stone-900 border-b border-stone-100 pb-4">Care Guide</Link>
+          <Link href="/contact-us" className="text-3xl font-serif text-stone-900 border-b border-stone-100 pb-4">Contact Us</Link>
 
           <div className="mt-8">
             <p className="text-[10px] uppercase tracking-[0.2em] text-stone-400 mb-6">Change Currency</p>
