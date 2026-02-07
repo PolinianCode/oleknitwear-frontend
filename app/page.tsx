@@ -1,7 +1,7 @@
 import Advantages from "@/components/Advantages"
 import FeaturedCollection from "@/components/FeaturedCollection"
 import HeroSlider from "@/components/HeroSlider"
-import OurStory from "@/components/OurHistory"
+import OurHistory from "@/components/OurHistory"
 
 const slides = [
   {
@@ -32,8 +32,8 @@ export default function Home() {
     "@context": "https://schema.org",
     "@type": "Brand",
     "name": "Ole Knitwear",
-    "url": "https://ole-knitwear.com",
-    "logo": "https://ole-knitwear.com/images/logo.png",
+    "url": process.env.NEXT_PUBLIC_BASE_URL || "https://ole-knitwear.com",
+    "logo": `${process.env.NEXT_PUBLIC_BASE_URL || "https://ole-knitwear.com"}/images/logo.png`,
     "sameAs": [
       "https://instagram.com/ole.knitwear",
     ]
@@ -47,7 +47,7 @@ export default function Home() {
       />
       <HeroSlider slides={slides} />
       <FeaturedCollection />
-      <OurStory />
+      <OurHistory />
       <Advantages />
     </>
   )

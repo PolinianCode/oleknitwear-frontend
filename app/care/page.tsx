@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     openGraph: {
         title: 'Care Guide for Hand-Knitted Knitwear | Ole Knitwear',
         description: 'Learn how to care for your handmade knitwear. Expert tips on washing, drying, and preserving your luxury wool garments.',
-        url: 'https://ole-knitwear.com/care',
+        url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://ole-knitwear.com'}/care`,
         type: 'article',
         images: [{
             url: '/og-image.jpg',

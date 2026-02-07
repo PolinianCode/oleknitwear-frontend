@@ -6,7 +6,7 @@ import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import FreeDelivery from "@/components/FreeDelivery";
 import PageTransition from "@/components/PageTransition";
-import { CartProvider } from "./context/CartContex";
+import { CartProvider } from "./context/CartContext";
 import SideCart from "@/components/Cart/SideCart";
 
 const inter = Inter({
@@ -20,7 +20,7 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://ole-knitwear.com'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://ole-knitwear.com'),
   title: {
     default: "Ole Knitwear | Handmade Knitwear",
     template: "%s | Ole Knitwear"
@@ -43,7 +43,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://ole-knitwear.com',
+    url: process.env.NEXT_PUBLIC_BASE_URL || 'https://ole-knitwear.com',
     siteName: 'Ole Knitwear',
     title: 'Ole Knitwear | Handmade Luxury Knitwear',
     description: 'Handcrafted luxury knitwear created for women who don\'t follow trends. Bespoke woolen pieces with worldwide shipping.',

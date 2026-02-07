@@ -3,7 +3,7 @@ import { MetadataRoute } from 'next';
 
 export default function sitemap(): MetadataRoute.Sitemap {
 
-    const baseUrl = 'https://ole-knitwear.com';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://ole-knitwear.com';
 
     const productUrls = products.map((product) => ({
         url: `${baseUrl}/shop/${product.id}`,

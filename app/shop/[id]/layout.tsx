@@ -16,8 +16,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         };
     }
 
-    const productUrl = `https://ole-knitwear.com/shop/${product.id}`;
-    const productImages = product.images.map(img => `https://ole-knitwear.com${img}`);
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://ole-knitwear.com';
+    const productUrl = `${baseUrl}/shop/${product.id}`;
+    const productImages = product.images.map(img => `${baseUrl}${img}`);
 
     return {
         title: product.name,

@@ -7,7 +7,7 @@ export const metadata: Metadata = {
     openGraph: {
         title: 'Contact Us | Ole Knitwear',
         description: 'Get in touch with Ole Knitwear. Questions about sizing, custom orders, or just want to say hello? We\'d love to hear from you.',
-        url: 'https://ole-knitwear.com/contact-us',
+        url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://ole-knitwear.com'}/contact-us`,
         type: 'website',
         images: [{
             url: '/og-image.jpg',

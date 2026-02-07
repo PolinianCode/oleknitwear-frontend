@@ -2,8 +2,7 @@
 
 import { products } from "@/data/products";
 import { useState, use, useEffect } from "react";
-import { useCart } from "@/app/context/CartContex";
-import Link from "next/link"
+import { useCart } from "@/app/context/CartContext";
 import { Heart, Minus, Plus } from "lucide-react";
 import ProductGallery from "@/components/products/ProductGallery";
 import RecentlyViewed from "@/components/products/RecentlyViewed";
@@ -33,7 +32,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     "@context": "https://schema.org",
     "@type": "Product",
     "name": product.name,
-    "image": product.images.map(img => `https://ole-knitwear.com${img}`),
+    "image": product.images.map(img => `${process.env.NEXT_PUBLIC_BASE_URL || 'https://ole-knitwear.com'}${img}`),
     "description": product.description,
     "brand": {
       "@type": "Brand",
@@ -41,7 +40,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     },
     "offers": {
       "@type": "Offer",
-      "url": `https://ole-knitwear.com/shop/${product.id}`,
+      "url": `${process.env.NEXT_PUBLIC_BASE_URL || 'https://ole-knitwear.com'}/shop/${product.id}`,
       "priceCurrency": "EUR",
       "price": product.price,
       "availability": "https://schema.org/InStock",
