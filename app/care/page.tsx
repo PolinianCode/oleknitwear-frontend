@@ -1,7 +1,35 @@
+import { Metadata } from 'next';
+import Breadcrumbs from '@/components/Breadcrumbs';
+
+export const metadata: Metadata = {
+    title: 'Care Guide',
+    description: 'Learn how to care for your handmade knitwear. Expert tips on washing, drying, and preserving your luxury wool garments.',
+    keywords: ['knitwear care', 'wool care guide', 'hand wash wool', 'sweater care', 'cardigan maintenance'],
+    openGraph: {
+        title: 'Care Guide for Hand-Knitted Knitwear | Ole Knitwear',
+        description: 'Learn how to care for your handmade knitwear. Expert tips on washing, drying, and preserving your luxury wool garments.',
+        url: 'https://ole-knitwear.com/care',
+        type: 'article',
+        images: [{
+            url: '/og-image.jpg',
+            width: 1200,
+            height: 630,
+            alt: 'Ole Knitwear Care Guide',
+        }],
+    },
+    twitter: {
+        card: 'summary_large_image',
+        title: 'Care Guide for Hand-Knitted Knitwear',
+        description: 'Learn how to care for your handmade knitwear with expert tips.',
+        images: ['/og-image.jpg'],
+    },
+};
+
 export default function CareGuide() {
     return (
         <main className="bg-stone-50 min-h-screen py-20 md:py-32">
             <div className="container mx-auto px-4 max-w-3xl">
+                <Breadcrumbs className="mb-8 flex items-center justify-center" />
 
                 <header className="text-center mb-20">
                     <span className="text-brand uppercase tracking-[0.3em] text-xs font-sans font-bold mb-4 block">

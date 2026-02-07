@@ -4,9 +4,10 @@ import { products } from "@/data/products";
 import { useState, use, useEffect } from "react";
 import { useCart } from "@/app/context/CartContex";
 import Link from "next/link"
-import { ChevronRight, Heart, Minus, Plus } from "lucide-react";
+import { Heart, Minus, Plus } from "lucide-react";
 import ProductGallery from "@/components/products/ProductGallery";
 import RecentlyViewed from "@/components/products/RecentlyViewed";
+import Breadcrumbs from "@/components/Breadcrumbs";
 
 export default function ProductPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
@@ -71,11 +72,14 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
       />
       <div className="container mx-auto px-4">
 
-        <nav className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-stone-400 mb-8">
-          <Link href="/shop">Shop</Link> <ChevronRight size={10} />
-          <Link href={`/shop?cat=${product.category}`}>{product.category}</Link> <ChevronRight size={10} />
-          <span className="text-stone-900">{product.name}</span>
-        </nav>
+        <Breadcrumbs
+          items={[
+            { label: "Shop", href: "/shop" },
+            { label: product.category, href: `/shop?cat=${product.category}` },
+            { label: product.name }
+          ]}
+          className="mb-8"
+        />
 
         <div className="flex flex-col lg:flex-row gap-12 xl:gap-24">
 
