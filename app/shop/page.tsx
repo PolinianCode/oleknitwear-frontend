@@ -5,6 +5,7 @@ import { products } from "@/data/products";
 import { useMemo } from "react";
 import ProductCard from "@/components/products/ProductCard";
 import { SlidersHorizontal, X, Check } from "lucide-react";
+import Breadcrumbs from "@/components/Breadcrumbs";
 
 const FilterLabel = ({ title }: { title: string }) => (
   <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] mb-4 text-stone-900">{title}</h3>
@@ -30,6 +31,7 @@ export default function ShopPage() {
   return (
     <main className="bg-stone-50 min-h-screen pt-32 pb-20">
       <div className="container mx-auto px-4">
+        <Breadcrumbs className="mb-6" />
         <h1 className="text-4xl md:text-6xl font-serif text-stone-900 mb-12">The <span className="italic">Shop</span></h1>
 
         <div className="flex flex-col lg:flex-row gap-12">

@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import Breadcrumbs from '@/components/Breadcrumbs';
 
 export const metadata: Metadata = {
     title: 'Care Guide',
@@ -28,6 +29,7 @@ export default function CareGuide() {
     return (
         <main className="bg-stone-50 min-h-screen py-20 md:py-32">
             <div className="container mx-auto px-4 max-w-3xl">
+                <Breadcrumbs className="mb-8 flex items-center justify-center" />
 
                 <header className="text-center mb-20">
                     <span className="text-brand uppercase tracking-[0.3em] text-xs font-sans font-bold mb-4 block">

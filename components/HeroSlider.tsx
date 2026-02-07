@@ -21,11 +21,11 @@ interface HeroSliderProps {
 
 export default function HeroSlider({ slides }: HeroSliderProps) {
     const [selectedIndex, setSelectedIndex] = useState(0);
-    
+
     const router = useRouter()
 
     const [emblaRef, emblaApi] = useEmblaCarousel(
-        { loop: true, duration: 40 }, 
+        { loop: true, duration: 40 },
         [Autoplay({ delay: 5000, stopOnInteraction: false })]
     );
 
@@ -47,11 +47,11 @@ export default function HeroSlider({ slides }: HeroSliderProps) {
                 {slides.map((slide, index) => (
                     <div className="relative flex-[0_0_100%] min-w-0 h-full" key={slide.id}>
                         <div className="absolute inset-0 z-10 bg-gradient-to-r from-black/70 via-black/20 to-transparent" />
-                        
-                        <Image 
-                            src={slide.src} 
-                            alt={slide.alt} 
-                            fill 
+
+                        <Image
+                            src={slide.src}
+                            alt={slide.alt}
+                            fill
                             priority={index === 0}
                             className="object-cover"
                         />
@@ -62,14 +62,20 @@ export default function HeroSlider({ slides }: HeroSliderProps) {
                                     {slide.subtitle}
                                 </span>
                             )}
-                            <h2 className="max-w-3xl text-4xl md:text-6xl font-serif mb-8 leading-tight">
-                                {slide.title}
-                            </h2>
+                            {index === 0 ? (
+                                <h1 className="max-w-3xl text-4xl md:text-6xl font-serif mb-8 leading-tight">
+                                    {slide.title}
+                                </h1>
+                            ) : (
+                                <h2 className="max-w-3xl text-4xl md:text-6xl font-serif mb-8 leading-tight">
+                                    {slide.title}
+                                </h2>
+                            )}
                             {slide.isButtonPresent && (
-                            <button onClick={() => router.push(slide.buttonLink || "")} className="group relative overflow-hidden bg-white px-8 py-3.5 rounded-full text-stone-900 transition-all hover:pr-12 active:scale-95 hover:cursor-pointer">
-                                <span className="font-medium">{slide.buttonText}</span>
-                                <span className="absolute right-4 opacity-0 transition-all group-hover:opacity-100"> → </span>
-                            </button>  
+                                <button onClick={() => router.push(slide.buttonLink || "")} className="group relative overflow-hidden bg-white px-8 py-3.5 rounded-full text-stone-900 transition-all hover:pr-12 active:scale-95 hover:cursor-pointer">
+                                    <span className="font-medium">{slide.buttonText}</span>
+                                    <span className="absolute right-4 opacity-0 transition-all group-hover:opacity-100"> → </span>
+                                </button>
                             )}
                         </div>
                     </div>
@@ -81,11 +87,10 @@ export default function HeroSlider({ slides }: HeroSliderProps) {
                     <button
                         key={index}
                         onClick={() => emblaApi?.scrollTo(index)}
-                        className={`h-1 rounded-full transition-all duration-500 ${
-                            index === selectedIndex 
-                            ? "w-10 bg-white" 
+                        className={`h-1 rounded-full transition-all duration-500 ${index === selectedIndex
+                            ? "w-10 bg-white"
                             : "w-2 bg-white/40 hover:bg-white/60"
-                        }`}
+                            }`}
                     />
                 ))}
             </div>

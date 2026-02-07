@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Mail, Instagram, Send } from "lucide-react";
+import Breadcrumbs from "@/components/Breadcrumbs";
 
 const ContactContent = ({ icon, title, content }: { icon: React.ReactNode, title: string, content: string }) => (
     <div className="flex items-start gap-4 group">
@@ -26,6 +27,7 @@ export default function ContactPage() {
         <main className="bg-stone-50 min-h-screen pt-32 pb-20 font-sans">
             <div className="container mx-auto px-4">
                 <div className="max-w-5xl mx-auto">
+                    <Breadcrumbs className="mb-8" />
 
                     <h1 className="text-5xl md:text-7xl font-serif text-stone-900 mb-12">
                         Get in <span className="italic text-brand">Touch</span>
