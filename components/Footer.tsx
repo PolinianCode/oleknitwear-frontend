@@ -37,11 +37,8 @@ export default function Footer() {
                             Navigation
                         </h3>
                         <nav className="flex flex-col gap-4 text-sm font-sans text-white/90">
-                            <Link href="/search" className="hover:opacity-70 transition-opacity">
-                                Search
-                            </Link>
                             <Link href="/contact-us" className="hover:opacity-70 transition-opacity">
-                                Contact
+                                Contact Us
                             </Link>
                             <Link href="/sizing-delivery" className="hover:opacity-70 transition-opacity">
                                 Sizing guide & Delivery terms

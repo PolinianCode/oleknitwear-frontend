@@ -9,7 +9,7 @@ export default function OurStory() {
                     <div className="relative h-[500px] lg:h-[650px] overflow-hidden rounded-2xl shadow-sm">
                         <Image
                             src="/images/about.jpg"
-                            alt="Olesia Bruskova knitting"
+                            alt="Olesia Bruskova founder of Ole Knitwear brand"
                             fill
                             sizes='(max-width: 400px) 100vw, (max-width: 1200px) 50vw, 33vw'
                             className="object-cover transition-transform duration-700 hover:scale-105"

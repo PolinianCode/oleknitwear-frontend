@@ -18,7 +18,12 @@ export default function Header() {
   const isHome = pathname === "/";
 
   useEffect(() => {
-    setIsMenuOpen(false);
+    const closeMenu = () => setIsMenuOpen(false);
+
+    if (isMenuOpen) {
+      closeMenu();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
   useEffect(() => {
@@ -45,6 +50,7 @@ export default function Header() {
     { code: "PLN" },
     { code: "UAH" },
     { code: "USD" },
+    { code: "EUR" },
   ];
 
   const headerBg = isMenuOpen
@@ -79,7 +85,7 @@ export default function Header() {
             <div className="relative w-[100px] h-[40px] md:w-[120px] md:h-[45px]">
               <Image
                 src="/images/logo.png"
-                alt="Ole Knitwear Logo"
+                alt="Ole Knitwear Logotype"
                 fill
                 className={`object-contain transition-all duration-300`}
                 priority

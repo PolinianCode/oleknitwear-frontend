@@ -3,6 +3,16 @@
 import { useState } from "react";
 import { Mail, Instagram, Send } from "lucide-react";
 
+const ContactContent = ({ icon, title, content }: { icon: React.ReactNode, title: string, content: string }) => (
+    <div className="flex items-start gap-4 group">
+        <div className="mt-1 text-stone-400 group-hover:text-brand transition-colors">{icon}</div>
+        <div>
+            <p className="text-[10px] uppercase tracking-widest font-bold text-stone-400 mb-1">{title}</p>
+            <p className="text-stone-900 font-light hover:text-brand transition-colors">{content}</p>
+        </div>
+    </div>
+);
+
 export default function ContactPage() {
     const [status, setStatus] = useState<"idle" | "sending" | "success">("idle");
 
@@ -26,7 +36,7 @@ export default function ContactPage() {
                         <div className="space-y-12">
                             <p className="text-lg text-stone-600 leading-relaxed max-w-md">
                                 Have a question about sizing, custom orders, or just want to say hello?
-                                We'd love to hear from you.
+                                We&apos;d love to hear from you.
                             </p>
 
                             <div className="space-y-8">
@@ -57,7 +67,7 @@ export default function ContactPage() {
                                         <Send size={24} />
                                     </div>
                                     <h3 className="text-2xl font-serif italic mb-2">Message Sent</h3>
-                                    <p className="text-stone-500 text-sm">Thank you for reaching out. We'll be in touch soon.</p>
+                                    <p className="text-stone-500 text-sm">Thank you for reaching out. We&apos;ll be in touch soon.</p>
                                     <button
                                         onClick={() => setStatus("idle")}
                                         className="mt-8 text-[10px] uppercase tracking-widest font-bold border-b border-stone-900 pb-1"
@@ -115,27 +125,13 @@ export default function ContactPage() {
     );
 }
 
-function ContactItem({ icon, title, content, link }: { icon: any, title: string, content: string, link?: string }) {
-    const Inner = () => (
-        <div className="flex items-start gap-4 group">
-            <div className="mt-1 text-stone-400 group-hover:text-brand transition-colors">{icon}</div>
-            <div>
-                <p className="text-[10px] uppercase tracking-widest font-bold text-stone-400 mb-1">{title}</p>
-                <p className="text-stone-900 font-light hover:text-brand transition-colors">{content}</p>
-            </div>
-        </div>
-    );
-
-    return link ? (
-        <a
-            href={link}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block"
-        >
-            <Inner />
-        </a>
-    ) : (
-        <Inner />
-    );
+function ContactItem({ icon, title, content, link }: { icon: React.ReactNode, title: string, content: string, link?: string }) {
+    if (link) {
+        return (
+            <a href={link} target="_blank" rel="noopener noreferrer" className="block">
+                <ContactContent icon={icon} title={title} content={content} />
+            </a>
+        );
+    }
+    return <ContactContent icon={icon} title={title} content={content} />;
 }
