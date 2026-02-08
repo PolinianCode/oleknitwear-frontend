@@ -48,7 +48,7 @@ export const metadata: Metadata = {
     title: 'Ole Knitwear | Handmade Luxury Knitwear',
     description: 'Handcrafted luxury knitwear created for women who don\'t follow trends. Bespoke woolen pieces with worldwide shipping.',
     images: [{
-      url: '/og-image.jpg',
+      url: '/og-image.png',
       width: 1200,
       height: 630,
       alt: 'Ole Knitwear - Handmade Luxury Knitwear',
@@ -59,7 +59,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Ole Knitwear | Handmade Luxury Knitwear',
     description: 'Handcrafted luxury knitwear created for women who don\'t follow trends.',
-    images: ['/og-image.jpg'],
+    images: ['/og-image.png'],
   },
 
   robots: {

@@ -10,7 +10,7 @@ export const metadata: Metadata = {
         url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://ole-knitwear.com'}/contact-us`,
         type: 'website',
         images: [{
-            url: '/og-image.jpg',
+            url: '/og-image.png',
             width: 1200,
             height: 630,
             alt: 'Contact Ole Knitwear',
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
         card: 'summary_large_image',
         title: 'Contact Us | Ole Knitwear',
         description: 'Get in touch with Ole Knitwear for custom orders and inquiries.',
-        images: ['/og-image.jpg'],
+        images: ['/og-image.png'],
     },
 };
 

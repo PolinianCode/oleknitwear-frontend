@@ -11,7 +11,7 @@ export const metadata: Metadata = {
         url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://ole-knitwear.com'}/care`,
         type: 'article',
         images: [{
-            url: '/og-image.jpg',
+            url: '/og-image.png',
             width: 1200,
             height: 630,
             alt: 'Ole Knitwear Care Guide',
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
         card: 'summary_large_image',
         title: 'Care Guide for Hand-Knitted Knitwear',
         description: 'Learn how to care for your handmade knitwear with expert tips.',
-        images: ['/og-image.jpg'],
+        images: ['/og-image.png'],
     },
 };
 

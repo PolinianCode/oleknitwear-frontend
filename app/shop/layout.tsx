@@ -10,7 +10,7 @@ export const metadata: Metadata = {
         url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://ole-knitwear.com'}/shop`,
         type: 'website',
         images: [{
-            url: '/og-image.jpg',
+            url: '/og-image.png',
             width: 1200,
             height: 630,
             alt: 'Ole Knitwear Shop',
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
         card: 'summary_large_image',
         title: 'Shop Handmade Knitwear | Ole Knitwear',
         description: 'Browse our collection of handcrafted luxury knitwear.',
-        images: ['/og-image.jpg'],
+        images: ['/og-image.png'],
     },
 };
 
