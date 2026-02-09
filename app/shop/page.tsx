@@ -6,13 +6,17 @@ import { useMemo } from "react";
 import ProductCard from "@/components/products/ProductCard";
 import { SlidersHorizontal, X, Check } from "lucide-react";
 import Breadcrumbs from "@/components/Breadcrumbs";
+import { useSearchParams } from "next/navigation";
 
 const FilterLabel = ({ title }: { title: string }) => (
   <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] mb-4 text-stone-900">{title}</h3>
 );
 
 export default function ShopPage() {
-  const [activeCategory, setActiveCategory] = useState("All");
+  const searchParams = useSearchParams();
+  const categoryFromUrl = searchParams.get("cat");
+
+  const [activeCategory, setActiveCategory] = useState(categoryFromUrl || "All");
   const [activeLength, setActiveLength] = useState<string | null>(null);
   const [activeSeason, setActiveSeason] = useState<string | null>(null);
   const [activeStatus, setActiveStatus] = useState<string | null>(null);
