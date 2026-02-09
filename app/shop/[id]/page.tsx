@@ -12,7 +12,6 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const resolvedParams = use(params);
   const productId = resolvedParams.id;
   const product = products.find((p) => p.id === Number(productId)) || products[0];
-  const [selectedSize, setSelectedSize] = useState("M");
   const [quantity, setQuantity] = useState(1);
 
   const { addToCart } = useCart()
@@ -22,7 +21,6 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
       id: product.id,
       name: product.name,
       price: product.price,
-      size: selectedSize,
       quantity: quantity,
       image: product.images[0],
     });
@@ -60,8 +58,6 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
       localStorage.setItem("recently_viewed", JSON.stringify(updatedList));
     }
   }, [product]);
-
-  const sizes = ["S", "M", "L", "Custom"];
 
   return (
     <main className="bg-white min-h-screen pt-24 md:pt-32 pb-20 font-sans">
@@ -106,20 +102,6 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                 <div className="flex justify-between items-center">
                   <span className="text-[10px] font-bold uppercase tracking-widest">Select Size</span>
                   <button className="text-[10px] text-brand border-b border-brand pb-0.5">Size Guide</button>
-                </div>
-                <div className="flex gap-3">
-                  {sizes.map((size) => (
-                    <button
-                      key={size}
-                      onClick={() => setSelectedSize(size)}
-                      className={`flex-1 py-3 text-xs border transition-all duration-300 ${selectedSize === size
-                        ? "bg-stone-900 text-white border-stone-900"
-                        : "border-stone-200 text-stone-500 hover:border-stone-900"
-                        }`}
-                    >
-                      {size}
-                    </button>
-                  ))}
                 </div>
               </div>
 
