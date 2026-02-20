@@ -1,6 +1,6 @@
 "use client";
 
-import { useCart } from "@/app/context/CartContex";
+import { useCart } from "@/app/context/CartContext";
 import { X, Minus, Plus, ShoppingBag } from "lucide-react";
 import Image from "next/image";
 
@@ -38,7 +38,7 @@ export default function SideCart() {
                             </div>
                         ) : (
                             cart.map((item) => (
-                                <div key={`${item.id}-${item.size}`} className="flex gap-4 group">
+                                <div key={`${item.id}`} className="flex gap-4 group">
                                     <div className="relative w-24 aspect-[3/4] bg-stone-100 overflow-hidden">
                                         <Image src={item.image} alt={item.name} fill className="object-cover" />
                                     </div>
@@ -46,17 +46,16 @@ export default function SideCart() {
                                         <div>
                                             <div className="flex justify-between items-start">
                                                 <h3 className="text-sm font-medium text-stone-900">{item.name}</h3>
-                                                <button onClick={() => removeFromCart(item.id, item.size)} className="text-stone-300 hover:text-stone-900 transition-colors">
+                                                <button onClick={() => removeFromCart(item.id)} className="text-stone-300 hover:text-stone-900 transition-colors">
                                                     <X size={16} />
                                                 </button>
                                             </div>
-                                            <p className="text-[10px] text-stone-400 uppercase mt-1">Size: {item.size}</p>
                                         </div>
                                         <div className="flex justify-between items-end">
                                             <div className="flex items-center border border-stone-100 px-2">
-                                                <button onClick={() => updateQuantity(item.id, item.size, -1)} className="p-1"><Minus size={12} /></button>
+                                                <button onClick={() => updateQuantity(item.id, -1)} className="p-1"><Minus size={12} /></button>
                                                 <span className="w-8 text-center text-xs">{item.quantity}</span>
-                                                <button onClick={() => updateQuantity(item.id, item.size, 1)} className="p-1"><Plus size={12} /></button>
+                                                <button onClick={() => updateQuantity(item.id, 1)} className="p-1"><Plus size={12} /></button>
                                             </div>
                                             <p className="text-sm font-medium">{item.price * item.quantity} USD</p>
                                         </div>

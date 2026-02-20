@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { Product } from "@/data/products";
 import { useRouter } from "next/navigation";
-import { useCart } from "@/app/context/CartContex";
+import { useCart } from "@/app/context/CartContext";
 
 export default function ProductCard({ product }: { product: Product }) {
   const [isHovered, setIsHovered] = useState(false);
@@ -19,7 +19,6 @@ export default function ProductCard({ product }: { product: Product }) {
       name: product.name,
       price: product.price,
       image: product.images[0],
-      size: "M",
       quantity: 1
     });
   };

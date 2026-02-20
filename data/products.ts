@@ -5,7 +5,7 @@ export interface Product {
   description: string;
   currency: string;
   category: string;
-  length: 'long' | 'short'; 
+  length: 'long' | 'short';
   season: 'winter/autumn' | 'summer/spring';
   status: 'in-stock' | 'pre-order';
   images: string[];
@@ -59,7 +59,7 @@ export const products: Product[] = [
     length: "long",
     season: "winter/autumn",
     status: "in-stock",
-    images: ["/products/cardigan-1.png", "/products/cardigan-2.png"],
+    images: ["/products/cardigan-1.png", "/products/cardigan-2.png", "/products/cardigan-2.png", "/products/cardigan-2.png"],
     isNew: true,
     description: "Handmade Chunky Scarf"
   },

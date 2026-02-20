@@ -1,6 +1,6 @@
 import Image from 'next/image';
 
-export default function OurStory() {
+export default function OurHistory() {
     return (
         <section className="py-24 bg-stone-50">
             <div className="container mx-auto px-4">

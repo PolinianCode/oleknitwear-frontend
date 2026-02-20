@@ -2,8 +2,7 @@
 
 import { products } from "@/data/products";
 import { useState, use, useEffect } from "react";
-import { useCart } from "@/app/context/CartContex";
-import Link from "next/link"
+import { useCart } from "@/app/context/CartContext";
 import { Heart, Minus, Plus } from "lucide-react";
 import ProductGallery from "@/components/products/ProductGallery";
 import RecentlyViewed from "@/components/products/RecentlyViewed";
@@ -13,7 +12,6 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const resolvedParams = use(params);
   const productId = resolvedParams.id;
   const product = products.find((p) => p.id === Number(productId)) || products[0];
-  const [selectedSize, setSelectedSize] = useState("M");
   const [quantity, setQuantity] = useState(1);
 
   const { addToCart } = useCart()
@@ -23,7 +21,6 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
       id: product.id,
       name: product.name,
       price: product.price,
-      size: selectedSize,
       quantity: quantity,
       image: product.images[0],
     });
@@ -33,7 +30,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     "@context": "https://schema.org",
     "@type": "Product",
     "name": product.name,
-    "image": product.images.map(img => `https://ole-knitwear.com${img}`),
+    "image": product.images.map(img => `${process.env.NEXT_PUBLIC_BASE_URL || 'https://ole-knitwear.com'}${img}`),
     "description": product.description,
     "brand": {
       "@type": "Brand",
@@ -41,7 +38,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     },
     "offers": {
       "@type": "Offer",
-      "url": `https://ole-knitwear.com/shop/${product.id}`,
+      "url": `${process.env.NEXT_PUBLIC_BASE_URL || 'https://ole-knitwear.com'}/shop/${product.id}`,
       "priceCurrency": "EUR",
       "price": product.price,
       "availability": "https://schema.org/InStock",
@@ -61,8 +58,6 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
       localStorage.setItem("recently_viewed", JSON.stringify(updatedList));
     }
   }, [product]);
-
-  const sizes = ["S", "M", "L", "Custom"];
 
   return (
     <main className="bg-white min-h-screen pt-24 md:pt-32 pb-20 font-sans">
@@ -107,20 +102,6 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                 <div className="flex justify-between items-center">
                   <span className="text-[10px] font-bold uppercase tracking-widest">Select Size</span>
                   <button className="text-[10px] text-brand border-b border-brand pb-0.5">Size Guide</button>
-                </div>
-                <div className="flex gap-3">
-                  {sizes.map((size) => (
-                    <button
-                      key={size}
-                      onClick={() => setSelectedSize(size)}
-                      className={`flex-1 py-3 text-xs border transition-all duration-300 ${selectedSize === size
-                        ? "bg-stone-900 text-white border-stone-900"
-                        : "border-stone-200 text-stone-500 hover:border-stone-900"
-                        }`}
-                    >
-                      {size}
-                    </button>
-                  ))}
                 </div>
               </div>
 
