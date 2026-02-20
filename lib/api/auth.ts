@@ -27,10 +27,16 @@ export async function logout(): Promise<void> {
 }
 
 export async function refreshToken(signal?: AbortSignal): Promise<boolean> {
-    const res = await fetch(`${BASE_URL}/api/auth/refresh`, {
-        method: "POST",
-        credentials: "include",
-        signal,
-    });
-    return res.ok;
+    try {
+        const res = await fetch(`${BASE_URL}/api/auth/refresh`, {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            signal,
+        });
+        return res.ok;
+    } catch (err) {
+        if (err instanceof DOMException && err.name === "AbortError") throw err;
+        return false;
+    }
 }
