@@ -9,7 +9,7 @@ export class ApiError extends Error {
     }
 }
 
-let refreshPromise: Promise<Response> | null = null;
+let refreshPromise: Promise<boolean> | null = null;
 
 export async function fetchApi<T>(
     endpoint: string,
@@ -38,13 +38,18 @@ export async function fetchApi<T>(
             refreshPromise = fetch(`${BASE_URL}/api/auth/refresh`, {
                 method: "POST",
                 credentials: "include",
-            });
+                headers: { "Content-Type": "application/json" },
+            })
+                .then((r) => r.ok)
+                .catch(() => false)
+                .finally(() => {
+                    refreshPromise = null;
+                });
         }
 
-        const refreshRes = await refreshPromise;
-        refreshPromise = null;
+        const isRefreshed = await refreshPromise;
 
-        if (refreshRes.ok) {
+        if (isRefreshed) {
             res = await fetch(url, opts);
         } else {
             throw new ApiError(401, "Session expired");
