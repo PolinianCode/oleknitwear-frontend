@@ -31,8 +31,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         if (savedCart) {
             try {
                 setCart(JSON.parse(savedCart));
-            } catch (error) {
-                console.error("Error while reading cart:", error);
+            } catch {
+                localStorage.removeItem("ole_cart");
             }
         }
     }, []);

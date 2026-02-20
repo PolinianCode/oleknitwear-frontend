@@ -2,14 +2,16 @@
 
 import { useState, useEffect } from "react";
 import { useCart } from "@/app/context/CartContext";
+import { useAuth } from "@/app/context/AuthContext";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { ShoppingBag, ChevronDown, Menu, X } from "lucide-react";
+import { ShoppingBag, ChevronDown, Menu, X, User, LogOut, Shield } from "lucide-react";
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const { setIsCartOpen, cart } = useCart();
+  const { user, isLoading: authLoading, logout } = useAuth();
   const [currency, setCurrency] = useState("USD");
   const [isCurrencyOpen, setIsCurrencyOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -18,12 +20,7 @@ export default function Header() {
   const isHome = pathname === "/";
 
   useEffect(() => {
-    const closeMenu = () => setIsMenuOpen(false);
-
-    if (isMenuOpen) {
-      closeMenu();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    setIsMenuOpen(false);
   }, [pathname]);
 
   useEffect(() => {
@@ -59,7 +56,7 @@ export default function Header() {
       ? (isScrolled ? "bg-white/90 backdrop-blur-md shadow-sm py-3" : "bg-transparent py-5")
       : "bg-white/95 backdrop-blur-sm shadow-sm py-3 border-b border-stone-100";
 
-  const textColor = isHome && !isScrolled ? "text-stone-900" : "text-stone-900";
+  const textColor = "text-stone-900";
 
   return (
     <header
@@ -95,6 +92,20 @@ export default function Header() {
         </div>
 
         <div className="flex items-center gap-6">
+
+          {!authLoading && (
+            <Link
+              href={user ? (user.role === "admin" ? "/admin" : "/profile") : "/login"}
+              className="hidden md:flex items-center group"
+              title={user ? user.email : "Sign in"}
+            >
+              <User
+                size={20}
+                strokeWidth={1.5}
+                className={`transition-colors ${user ? "text-brand" : "group-hover:text-brand"}`}
+              />
+            </Link>
+          )}
 
           <button className="relative group flex items-center" onClick={() => setIsCartOpen(true)}>
             <ShoppingBag
@@ -174,6 +185,43 @@ export default function Header() {
               ))}
             </div>
           </div>
+
+          {!authLoading && (
+            <div className="mt-8">
+              <p className="text-[10px] uppercase tracking-[0.2em] text-stone-400 mb-6">Account</p>
+              {user ? (
+                <div className="space-y-4">
+                  <Link href="/profile" className="flex items-center gap-3 text-sm text-stone-600 hover:text-brand transition-colors">
+                    <User size={16} className="text-brand" />
+                    <span>{user.full_name || user.email}</span>
+                  </Link>
+                  {user.role === "admin" && (
+                    <Link href="/admin" className="flex items-center gap-3 text-sm text-stone-900 font-medium hover:text-brand transition-colors">
+                      <Shield size={16} />
+                      Admin Dashboard
+                    </Link>
+                  )}
+                  <button
+                    onClick={async () => { await logout(); setIsMenuOpen(false); }}
+                    className="flex items-center gap-3 text-sm text-stone-500 hover:text-red-600 transition-colors hover:cursor-pointer"
+                  >
+                    <LogOut size={16} />
+                    Sign Out
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <Link href="/login" className="flex items-center gap-3 text-sm text-stone-900 font-medium hover:text-brand transition-colors">
+                    <User size={16} />
+                    Sign In
+                  </Link>
+                  <Link href="/register" className="flex items-center gap-3 text-sm text-stone-500 hover:text-brand transition-colors">
+                    Create Account
+                  </Link>
+                </div>
+              )}
+            </div>
+          )}
         </nav>
       </div>
     </header>

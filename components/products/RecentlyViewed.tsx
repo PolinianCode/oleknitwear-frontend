@@ -1,10 +1,10 @@
 "use client";
 import { useEffect, useState } from "react";
-import { products } from "@/data/products";
+import { products, Product } from "@/data/products";
 import ProductCard from "./ProductCard";
 
 export default function RecentlyViewed({ currentProductId }: { currentProductId?: number }) {
-    const [viewedProducts, setViewedProducts] = useState<any[]>([]);
+    const [viewedProducts, setViewedProducts] = useState<Product[]>([]);
 
     useEffect(() => {
         const ids = JSON.parse(localStorage.getItem("recently_viewed") || "[]");

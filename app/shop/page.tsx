@@ -1,18 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState, useMemo, useEffect, useCallback } from "react";
 import { products } from "@/data/products";
-import { useMemo } from "react";
 import ProductCard from "@/components/products/ProductCard";
 import { SlidersHorizontal, X, Check } from "lucide-react";
 import Breadcrumbs from "@/components/Breadcrumbs";
+import { Pagination } from "@/components/Pagination";
 import { useSearchParams } from "next/navigation";
+
+const PER_PAGE = 9;
 
 const FilterLabel = ({ title }: { title: string }) => (
   <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] mb-4 text-stone-900">{title}</h3>
 );
 
 export default function ShopPage() {
+  return (
+    <Suspense>
+      <ShopContent />
+    </Suspense>
+  );
+}
+
+function ShopContent() {
   const searchParams = useSearchParams();
   const categoryFromUrl = searchParams.get("cat");
 
@@ -21,6 +31,7 @@ export default function ShopPage() {
   const [activeSeason, setActiveSeason] = useState<string | null>(null);
   const [activeStatus, setActiveStatus] = useState<string | null>(null);
   const [isFilterMobileOpen, setIsFilterMobileOpen] = useState(false);
+  const [page, setPage] = useState(1);
 
   const filteredProducts = useMemo(() => {
     return products.filter((p) => {
@@ -32,6 +43,19 @@ export default function ShopPage() {
     });
   }, [activeCategory, activeLength, activeSeason, activeStatus]);
 
+  useEffect(() => {
+    setPage(1);
+  }, [activeCategory, activeLength, activeSeason, activeStatus]);
+
+  const totalPages = Math.ceil(filteredProducts.length / PER_PAGE);
+  const safePage = Math.min(page, totalPages || 1);
+  const paginatedProducts = filteredProducts.slice((safePage - 1) * PER_PAGE, safePage * PER_PAGE);
+
+  const handlePageChange = useCallback((newPage: number) => {
+    setPage(newPage);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+
   return (
     <main className="bg-stone-50 min-h-screen pt-32 pb-20">
       <div className="container mx-auto px-4">
@@ -40,7 +64,6 @@ export default function ShopPage() {
 
         <div className="flex flex-col lg:flex-row gap-12">
 
-          {/* DESKTOP */}
           <aside className="hidden lg:block w-64 space-y-12 animate-fade-in">
 
             <div>
@@ -99,7 +122,7 @@ export default function ShopPage() {
             </button>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-16">
-              {filteredProducts.map(product => (
+              {paginatedProducts.map(product => (
                 <ProductCard key={product.id} product={product} />
               ))}
             </div>
@@ -109,11 +132,12 @@ export default function ShopPage() {
                 No items match your selection.
               </div>
             )}
+
+            <Pagination currentPage={safePage} totalPages={totalPages} onPageChange={handlePageChange} />
           </div>
         </div>
       </div>
 
-      {/* MOBILE FILTER MODAL */}
       {isFilterMobileOpen && (
         <div className="fixed inset-0 z-[100] bg-white overflow-y-auto animate-fadeIn flex flex-col">
           <div className="flex justify-between items-center p-6 border-b border-stone-100">
