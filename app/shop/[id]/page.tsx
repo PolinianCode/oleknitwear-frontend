@@ -119,7 +119,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                 </button>
               </div>
 
-              <div className="border-t border-stone-100 pt-6 space-y-4">
+              <div className="border-t border-stone-100 pt-6 space-y-4 pb-4">
                 <details className="group cursor-pointer">
                   <summary className="flex justify-between items-center list-none text-[10px] font-bold uppercase tracking-widest">
                     Composition & Care <Plus size={12} className="group-open:rotate-45 transition-transform" />

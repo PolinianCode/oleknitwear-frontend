@@ -18,7 +18,16 @@ export function ProductModal({ product, categories, onClose, onSaved }: ProductM
     const isEdit = !!product;
     const [name, setName] = useState(product?.name || "");
     const [description, setDescription] = useState(product?.description || "");
-    const [price, setPrice] = useState(product?.price?.toString() || "");
+    const [priceUah, setPriceUah] = useState(product?.price_uah?.toString() || "");
+    const [pricePln, setPricePln] = useState(product?.price_pln?.toString() || "");
+    const [priceEur, setPriceEur] = useState(product?.price_eur?.toString() || "");
+    const [priceUsd, setPriceUsd] = useState(product?.price_usd?.toString() || "");
+    const [isNew, setIsNew] = useState(product?.is_new ?? false);
+    const [isSale, setIsSale] = useState(product?.is_sale ?? false);
+    const [salePriceUah, setSalePriceUah] = useState(product?.sale_price_uah?.toString() || "");
+    const [salePricePln, setSalePricePln] = useState(product?.sale_price_pln?.toString() || "");
+    const [salePriceEur, setSalePriceEur] = useState(product?.sale_price_eur?.toString() || "");
+    const [salePriceUsd, setSalePriceUsd] = useState(product?.sale_price_usd?.toString() || "");
     const [categoryId, setCategoryId] = useState(product?.category_id?.toString() || (categories[0]?.id || ""));
     const [featured, setFeatured] = useState(product?.featured ?? false);
     const [metaEntries, setMetaEntries] = useState<MetadataEntry[]>(
@@ -73,7 +82,16 @@ export function ProductModal({ product, categories, onClose, onSaved }: ProductM
                 await updateProduct(product.id, {
                     name,
                     description: description || undefined,
-                    price: parseFloat(price),
+                    price_uah: parseFloat(priceUah) || 0,
+                    price_pln: parseFloat(pricePln) || 0,
+                    price_eur: parseFloat(priceEur) || 0,
+                    price_usd: parseFloat(priceUsd) || 0,
+                    is_new: isNew,
+                    is_sale: isSale,
+                    sale_price_uah: salePriceUah ? parseFloat(salePriceUah) : null,
+                    sale_price_pln: salePricePln ? parseFloat(salePricePln) : null,
+                    sale_price_eur: salePriceEur ? parseFloat(salePriceEur) : null,
+                    sale_price_usd: salePriceUsd ? parseFloat(salePriceUsd) : null,
                     category_id: parseInt(categoryId),
                     featured,
                     metadata: metadata || {},
@@ -87,7 +105,16 @@ export function ProductModal({ product, categories, onClose, onSaved }: ProductM
                 await createProduct({
                     name,
                     description: description || undefined,
-                    price: parseFloat(price),
+                    price_uah: parseFloat(priceUah) || 0,
+                    price_pln: parseFloat(pricePln) || 0,
+                    price_eur: parseFloat(priceEur) || 0,
+                    price_usd: parseFloat(priceUsd) || 0,
+                    is_new: isNew,
+                    is_sale: isSale,
+                    sale_price_uah: salePriceUah ? parseFloat(salePriceUah) : null,
+                    sale_price_pln: salePricePln ? parseFloat(salePricePln) : null,
+                    sale_price_eur: salePriceEur ? parseFloat(salePriceEur) : null,
+                    sale_price_usd: salePriceUsd ? parseFloat(salePriceUsd) : null,
                     category_id: parseInt(categoryId),
                     featured,
                     metadata: metadata || {},
@@ -145,53 +172,186 @@ export function ProductModal({ product, categories, onClose, onSaved }: ProductM
                             />
                         </div>
 
-                        <div className="grid grid-cols-2 gap-6">
-                            <div className="space-y-1">
-                                <label className="text-[10px] uppercase tracking-widest font-bold text-stone-400">Price ($)</label>
-                                <input
-                                    required
-                                    type="number"
-                                    min="0.01"
-                                    step="0.01"
-                                    value={price}
-                                    onChange={(e) => setPrice(e.target.value)}
-                                    className="w-full border-b border-stone-200 py-3 focus:border-brand outline-none transition-colors font-light text-stone-900 bg-transparent"
-                                    placeholder="89.99"
-                                />
-                            </div>
-                            <div className="space-y-1">
-                                <label className="text-[10px] uppercase tracking-widest font-bold text-stone-400">Category</label>
-                                <select
-                                    required
-                                    value={categoryId}
-                                    onChange={(e) => setCategoryId(e.target.value)}
-                                    className="w-full border-b border-stone-200 py-3 focus:border-brand outline-none transition-colors font-light text-stone-900 bg-transparent"
-                                >
-                                    {categories.map((cat) => (
-                                        <option key={cat.id} value={cat.id}>{cat.name}</option>
-                                    ))}
-                                </select>
+                        <div className="space-y-2">
+                            <label className="text-[10px] uppercase tracking-widest font-bold text-stone-400 block mb-1">Base Prices</label>
+                            <div className="grid grid-cols-4 gap-4">
+                                <div className="space-y-1">
+                                    <label className="text-[10px] uppercase tracking-widest font-bold text-stone-400">UAH</label>
+                                    <input
+                                        required
+                                        type="number"
+                                        min="0"
+                                        step="0.01"
+                                        value={priceUah}
+                                        onChange={(e) => setPriceUah(e.target.value)}
+                                        className="w-full border-b border-stone-200 py-2 focus:border-brand outline-none transition-colors font-light text-stone-900 bg-transparent text-sm"
+                                        placeholder="0.00"
+                                    />
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-[10px] uppercase tracking-widest font-bold text-stone-400">PLN</label>
+                                    <input
+                                        required
+                                        type="number"
+                                        min="0"
+                                        step="0.01"
+                                        value={pricePln}
+                                        onChange={(e) => setPricePln(e.target.value)}
+                                        className="w-full border-b border-stone-200 py-2 focus:border-brand outline-none transition-colors font-light text-stone-900 bg-transparent text-sm"
+                                        placeholder="0.00"
+                                    />
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-[10px] uppercase tracking-widest font-bold text-stone-400">EUR</label>
+                                    <input
+                                        required
+                                        type="number"
+                                        min="0"
+                                        step="0.01"
+                                        value={priceEur}
+                                        onChange={(e) => setPriceEur(e.target.value)}
+                                        className="w-full border-b border-stone-200 py-2 focus:border-brand outline-none transition-colors font-light text-stone-900 bg-transparent text-sm"
+                                        placeholder="0.00"
+                                    />
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-[10px] uppercase tracking-widest font-bold text-stone-400">USD</label>
+                                    <input
+                                        required
+                                        type="number"
+                                        min="0"
+                                        step="0.01"
+                                        value={priceUsd}
+                                        onChange={(e) => setPriceUsd(e.target.value)}
+                                        className="w-full border-b border-stone-200 py-2 focus:border-brand outline-none transition-colors font-light text-stone-900 bg-transparent text-sm"
+                                        placeholder="0.00"
+                                    />
+                                </div>
                             </div>
                         </div>
 
-                        <div className="flex items-center gap-3 pt-2">
-                            <button
-                                type="button"
-                                onClick={() => setFeatured(!featured)}
-                                className={`relative w-10 h-5 rounded-full transition-colors hover:cursor-pointer ${
-                                    featured ? "bg-brand" : "bg-stone-200"
-                                }`}
+                        <div className="space-y-1">
+                            <label className="text-[10px] uppercase tracking-widest font-bold text-stone-400">Category</label>
+                            <select
+                                required
+                                value={categoryId}
+                                onChange={(e) => setCategoryId(e.target.value)}
+                                className="w-full border-b border-stone-200 py-3 focus:border-brand outline-none transition-colors font-light text-stone-900 bg-transparent"
                             >
-                                <span
-                                    className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${
-                                        featured ? "translate-x-5" : "translate-x-0"
-                                    }`}
-                                />
-                            </button>
-                            <label className="text-[10px] uppercase tracking-widest font-bold text-stone-400">
-                                Featured Product
-                            </label>
+                                {categories.map((cat) => (
+                                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                                ))}
+                            </select>
                         </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2">
+                            <div className="flex items-center gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() => setFeatured(!featured)}
+                                    className={`relative w-10 h-5 rounded-full transition-colors hover:cursor-pointer ${featured ? "bg-brand" : "bg-stone-200"
+                                        }`}
+                                >
+                                    <span
+                                        className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${featured ? "translate-x-5" : "translate-x-0"
+                                            }`}
+                                    />
+                                </button>
+                                <label className="text-[10px] uppercase tracking-widest font-bold text-stone-400">
+                                    Featured Product
+                                </label>
+                            </div>
+
+                            <div className="flex items-center gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() => setIsNew(!isNew)}
+                                    className={`relative w-10 h-5 rounded-full transition-colors hover:cursor-pointer ${isNew ? "bg-brand" : "bg-stone-200"
+                                        }`}
+                                >
+                                    <span
+                                        className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${isNew ? "translate-x-5" : "translate-x-0"
+                                            }`}
+                                    />
+                                </button>
+                                <label className="text-[10px] uppercase tracking-widest font-bold text-stone-400">
+                                    New Arrival
+                                </label>
+                            </div>
+
+                            <div className="flex items-center gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() => setIsSale(!isSale)}
+                                    className={`relative w-10 h-5 rounded-full transition-colors hover:cursor-pointer ${isSale ? "bg-brand" : "bg-stone-200"
+                                        }`}
+                                >
+                                    <span
+                                        className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${isSale ? "translate-x-5" : "translate-x-0"
+                                            }`}
+                                    />
+                                </button>
+                                <label className="text-[10px] uppercase tracking-widest font-bold text-stone-400">
+                                    On Sale
+                                </label>
+                            </div>
+                        </div>
+
+                        {isSale && (
+                            <div className="space-y-2 mt-4 pt-4 border-t border-stone-100">
+                                <label className="text-[10px] uppercase tracking-widest font-bold text-stone-400 block mb-1">Sales Prices</label>
+                                <div className="grid grid-cols-4 gap-4">
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] uppercase tracking-widest font-bold text-stone-400">UAH</label>
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            step="0.01"
+                                            value={salePriceUah}
+                                            onChange={(e) => setSalePriceUah(e.target.value)}
+                                            className="w-full border-b border-stone-200 py-2 focus:border-brand outline-none transition-colors font-light text-stone-900 bg-transparent text-sm"
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] uppercase tracking-widest font-bold text-stone-400">PLN</label>
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            step="0.01"
+                                            value={salePricePln}
+                                            onChange={(e) => setSalePricePln(e.target.value)}
+                                            className="w-full border-b border-stone-200 py-2 focus:border-brand outline-none transition-colors font-light text-stone-900 bg-transparent text-sm"
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] uppercase tracking-widest font-bold text-stone-400">EUR</label>
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            step="0.01"
+                                            value={salePriceEur}
+                                            onChange={(e) => setSalePriceEur(e.target.value)}
+                                            className="w-full border-b border-stone-200 py-2 focus:border-brand outline-none transition-colors font-light text-stone-900 bg-transparent text-sm"
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] uppercase tracking-widest font-bold text-stone-400">USD</label>
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            step="0.01"
+                                            value={salePriceUsd}
+                                            onChange={(e) => setSalePriceUsd(e.target.value)}
+                                            className="w-full border-b border-stone-200 py-2 focus:border-brand outline-none transition-colors font-light text-stone-900 bg-transparent text-sm"
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </fieldset>
 
                     <fieldset className="mb-8">

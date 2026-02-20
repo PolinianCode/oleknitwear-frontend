@@ -11,7 +11,16 @@ export interface ApiProduct {
     name: string;
     slug: string;
     description?: string;
-    price: number;
+    price_uah: number;
+    price_pln: number;
+    price_eur: number;
+    price_usd: number;
+    is_new: boolean;
+    is_sale: boolean;
+    sale_price_uah?: number | null;
+    sale_price_pln?: number | null;
+    sale_price_eur?: number | null;
+    sale_price_usd?: number | null;
     category_id: number;
     featured: boolean;
     metadata?: Record<string, unknown>;
@@ -45,7 +54,16 @@ export interface MetadataEntry {
 export interface CreateProductPayload {
     name: string;
     description?: string;
-    price: number;
+    price_uah: number;
+    price_pln: number;
+    price_eur: number;
+    price_usd: number;
+    is_new: boolean;
+    is_sale: boolean;
+    sale_price_uah?: number | null;
+    sale_price_pln?: number | null;
+    sale_price_eur?: number | null;
+    sale_price_usd?: number | null;
     category_id: number;
     featured?: boolean;
     metadata?: Record<string, string>;
@@ -55,7 +73,16 @@ export interface CreateProductPayload {
 export interface UpdateProductPayload {
     name?: string;
     description?: string;
-    price?: number;
+    price_uah?: number;
+    price_pln?: number;
+    price_eur?: number;
+    price_usd?: number;
+    is_new?: boolean;
+    is_sale?: boolean;
+    sale_price_uah?: number | null;
+    sale_price_pln?: number | null;
+    sale_price_eur?: number | null;
+    sale_price_usd?: number | null;
     category_id?: number;
     featured?: boolean;
     metadata?: Record<string, string>;
