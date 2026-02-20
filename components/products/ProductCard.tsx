@@ -14,6 +14,7 @@ export default function ProductCard({ product }: { product: Product }) {
 
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     addToCart({
       id: product.id,
       name: product.name,

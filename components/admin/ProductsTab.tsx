@@ -18,7 +18,7 @@ interface ProductsTabProps {
 }
 
 export function ProductsTab({ search, products, categories, loading }: ProductsTabProps) {
-    const [sortKey, setSortKey] = useState<"name" | "price" | "category_id" | "created_at">("created_at");
+    const [sortKey, setSortKey] = useState<"name" | "price_uah" | "category_id" | "created_at">("created_at");
     const [sortDir, setSortDir] = useState<SortDir>("desc");
     const [modalProduct, setModalProduct] = useState<ApiProduct | null>(null);
     const [showAddModal, setShowAddModal] = useState(false);
@@ -41,7 +41,7 @@ export function ProductsTab({ search, products, categories, loading }: ProductsT
         .sort((a, b) => {
             const mul = sortDir === "asc" ? 1 : -1;
             if (sortKey === "name") return mul * a.name.localeCompare(b.name);
-            if (sortKey === "price") return mul * (a.price - b.price);
+            if (sortKey === "price_uah") return mul * (a.price_uah - b.price_uah);
             if (sortKey === "category_id") return mul * getCategoryName(a.category_id).localeCompare(getCategoryName(b.category_id));
             return mul * (new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
         });
@@ -88,7 +88,7 @@ export function ProductsTab({ search, products, categories, loading }: ProductsT
                         <tr className="border-b border-stone-100 bg-stone-50/50">
                             <SortHeader label="Product" active={sortKey === "name"} dir={sortKey === "name" ? sortDir : undefined} onClick={() => toggleSort("name")} />
                             <SortHeader label="Category" active={sortKey === "category_id"} dir={sortKey === "category_id" ? sortDir : undefined} onClick={() => toggleSort("category_id")} className="hidden sm:table-cell" />
-                            <SortHeader label="Price" active={sortKey === "price"} dir={sortKey === "price" ? sortDir : undefined} onClick={() => toggleSort("price")} />
+                            <SortHeader label="Price" active={sortKey === "price_uah"} dir={sortKey === "price_uah" ? sortDir : undefined} onClick={() => toggleSort("price_uah")} />
                             <th className="text-left px-5 py-3 hidden lg:table-cell"><span className="text-[10px] uppercase tracking-widest font-bold text-stone-400">Details</span></th>
                             <SortHeader label="Added" active={sortKey === "created_at"} dir={sortKey === "created_at" ? sortDir : undefined} onClick={() => toggleSort("created_at")} className="hidden md:table-cell" />
                             <th className="text-right px-5 py-3"><span className="text-[10px] uppercase tracking-widest font-bold text-stone-400">Actions</span></th>
@@ -132,7 +132,7 @@ export function ProductsTab({ search, products, categories, loading }: ProductsT
                                         </span>
                                     </td>
                                     <td className="px-5 py-4">
-                                        <span className="text-sm font-medium text-stone-900 tabular-nums">${product.price}</span>
+                                        <span className="text-sm font-medium text-stone-900 tabular-nums">UAH {product.price_uah}</span>
                                     </td>
                                     <td className="px-5 py-4 hidden lg:table-cell">
                                         {meta.length > 0 ? (
