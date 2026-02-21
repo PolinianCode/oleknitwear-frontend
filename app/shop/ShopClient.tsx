@@ -21,6 +21,10 @@ interface ShopClientProps {
 
 export default function ShopClient({ products, categories, initialCategory }: ShopClientProps) {
   const [activeCategory, setActiveCategory] = useState<string>(initialCategory || "all");
+  const [showNew, setShowNew] = useState(false);
+  const [showSale, setShowSale] = useState(false);
+  const [showInStock, setShowInStock] = useState(false);
+  const [showPreOrder, setShowPreOrder] = useState(false);
   const [isFilterMobileOpen, setIsFilterMobileOpen] = useState(false);
   const [page, setPage] = useState(1);
 
@@ -34,15 +38,37 @@ export default function ShopClient({ products, categories, initialCategory }: Sh
   }, [initialCategory, categories]);
 
   const filteredProducts = useMemo(() => {
-    if (activeCategory === "all") return products;
-    const cat = categories.find(c => c.slug === activeCategory);
-    if (!cat) return products;
-    return products.filter((p) => String(p.category_id) === String(cat.id));
-  }, [activeCategory, products, categories]);
+    let result = products;
+
+    if (activeCategory !== "all") {
+      const cat = categories.find(c => c.slug === activeCategory);
+      if (cat) {
+        result = result.filter((p) => String(p.category_id) === String(cat.id));
+      }
+    }
+
+    if (showNew) {
+      result = result.filter(p => p.is_new);
+    }
+
+    if (showSale) {
+      result = result.filter(p => p.is_sale);
+    }
+
+    if (showInStock) {
+      result = result.filter(p => p.is_in_stock);
+    }
+
+    if (showPreOrder) {
+      result = result.filter(p => p.is_pre_order);
+    }
+
+    return result;
+  }, [activeCategory, showNew, showSale, showInStock, showPreOrder, products, categories]);
 
   useEffect(() => {
     setPage(1);
-  }, [activeCategory]);
+  }, [activeCategory, showNew, showSale, showInStock, showPreOrder]);
 
   const totalPages = Math.ceil(filteredProducts.length / PER_PAGE);
   const safePage = Math.min(page, totalPages || 1);
@@ -84,8 +110,70 @@ export default function ShopClient({ products, categories, initialCategory }: Sh
               </div>
             </div>
 
+            <div>
+              <FilterLabel title="Collection" />
+              <div className="flex flex-col gap-3">
+                <button
+                  onClick={() => setShowNew(!showNew)}
+                  className={`text-left text-sm transition-colors cursor-pointer flex items-center justify-between group ${showNew ? "text-brand font-medium" : "text-stone-500 hover:text-stone-900"}`}
+                >
+                  New Arrivals
+                  <div className={`w-3.5 h-3.5 border rounded-sm flex items-center justify-center transition-colors ${showNew ? "bg-brand border-brand" : "border-stone-300 group-hover:border-stone-400"}`}>
+                    {showNew && <div className="w-1.5 h-1.5 bg-white rounded-full" />}
+                  </div>
+                </button>
+                <button
+                  onClick={() => setShowSale(!showSale)}
+                  className={`text-left text-sm transition-colors cursor-pointer flex items-center justify-between group ${showSale ? "text-brand font-medium" : "text-stone-500 hover:text-stone-900"}`}
+                >
+                  On Sale
+                  <div className={`w-3.5 h-3.5 border rounded-sm flex items-center justify-center transition-colors ${showSale ? "bg-brand border-brand" : "border-stone-300 group-hover:border-stone-400"}`}>
+                    {showSale && <div className="w-1.5 h-1.5 bg-white rounded-full" />}
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <FilterLabel title="Availability" />
+              <div className="flex flex-col gap-3">
+                <button
+                  onClick={() => {
+                    const newVal = !showInStock;
+                    setShowInStock(newVal);
+                    if (newVal) setShowPreOrder(false);
+                  }}
+                  className={`text-left text-sm transition-colors cursor-pointer flex items-center justify-between group ${showInStock ? "text-brand font-medium" : "text-stone-500 hover:text-stone-900"}`}
+                >
+                  In Stock
+                  <div className={`w-3.5 h-3.5 border rounded-sm flex items-center justify-center transition-colors ${showInStock ? "bg-brand border-brand" : "border-stone-300 group-hover:border-stone-400"}`}>
+                    {showInStock && <div className="w-1.5 h-1.5 bg-white rounded-full" />}
+                  </div>
+                </button>
+                <button
+                  onClick={() => {
+                    const newVal = !showPreOrder;
+                    setShowPreOrder(newVal);
+                    if (newVal) setShowInStock(false);
+                  }}
+                  className={`text-left text-sm transition-colors cursor-pointer flex items-center justify-between group ${showPreOrder ? "text-brand font-medium" : "text-stone-500 hover:text-stone-900"}`}
+                >
+                  Pre-Order
+                  <div className={`w-3.5 h-3.5 border rounded-sm flex items-center justify-center transition-colors ${showPreOrder ? "bg-brand border-brand" : "border-stone-300 group-hover:border-stone-400"}`}>
+                    {showPreOrder && <div className="w-1.5 h-1.5 bg-white rounded-full" />}
+                  </div>
+                </button>
+              </div>
+            </div>
+
             <button
-              onClick={() => { setActiveCategory("all"); }}
+              onClick={() => {
+                setActiveCategory("all");
+                setShowNew(false);
+                setShowSale(false);
+                setShowInStock(false);
+                setShowPreOrder(false);
+              }}
               className="text-[9px] uppercase tracking-widest text-stone-400 hover:text-brand border-b border-stone-200 pb-1 transition-colors cursor-pointer"
             >
               Clear all filters
@@ -158,8 +246,70 @@ export default function ShopClient({ products, categories, initialCategory }: Sh
               </div>
             </section>
 
+            <section>
+              <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] mb-4 text-stone-400">Collection</h3>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => setShowNew(!showNew)}
+                  className={`px-4 py-2 text-xs font-sans rounded-full border transition-all ${showNew
+                    ? "bg-brand text-white border-brand"
+                    : "bg-white text-stone-500 border-stone-200"
+                    }`}
+                >
+                  New Arrivals
+                </button>
+                <button
+                  onClick={() => setShowSale(!showSale)}
+                  className={`px-4 py-2 text-xs font-sans rounded-full border transition-all ${showSale
+                    ? "bg-brand text-white border-brand"
+                    : "bg-white text-stone-500 border-stone-200"
+                    }`}
+                >
+                  On Sale
+                </button>
+              </div>
+            </section>
+
+            <section>
+              <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] mb-4 text-stone-400">Availability</h3>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => {
+                    const newVal = !showInStock;
+                    setShowInStock(newVal);
+                    if (newVal) setShowPreOrder(false);
+                  }}
+                  className={`px-4 py-2 text-xs font-sans rounded-full border transition-all ${showInStock
+                    ? "bg-brand text-white border-brand"
+                    : "bg-white text-stone-500 border-stone-200"
+                    }`}
+                >
+                  In Stock
+                </button>
+                <button
+                  onClick={() => {
+                    const newVal = !showPreOrder;
+                    setShowPreOrder(newVal);
+                    if (newVal) setShowInStock(false);
+                  }}
+                  className={`px-4 py-2 text-xs font-sans rounded-full border transition-all ${showPreOrder
+                    ? "bg-brand text-white border-brand"
+                    : "bg-white text-stone-500 border-stone-200"
+                    }`}
+                >
+                  Pre-Order
+                </button>
+              </div>
+            </section>
+
             <button
-              onClick={() => { setActiveCategory("all"); }}
+              onClick={() => {
+                setActiveCategory("all");
+                setShowNew(false);
+                setShowSale(false);
+                setShowInStock(false);
+                setShowPreOrder(false);
+              }}
               className="w-full text-[10px] uppercase tracking-widest text-brand font-bold py-4 border-t border-stone-100 mt-4"
             >
               Clear all filters
