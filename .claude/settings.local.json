@@ -1,7 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npx next build:*)"
+      "Bash(npx next build:*)",
+      "Bash(for f in /Users/danylokoval/Desktop/oleknitwear-frontend/app/care/page.tsx /Users/danylokoval/Desktop/oleknitwear-frontend/app/shop/page.tsx /Users/danylokoval/Desktop/oleknitwear-frontend/app/shop/[slug]/page.tsx /Users/danylokoval/Desktop/oleknitwear-frontend/app/admin/page.tsx /Users/danylokoval/Desktop/oleknitwear-frontend/app/sizing-delivery/page.tsx /Users/danylokoval/Desktop/oleknitwear-frontend/app/register/page.tsx /Users/danylokoval/Desktop/oleknitwear-frontend/app/profile/page.tsx /Users/danylokoval/Desktop/oleknitwear-frontend/app/contact-us/page.tsx /Users/danylokoval/Desktop/oleknitwear-frontend/app/page.tsx /Users/danylokoval/Desktop/oleknitwear-frontend/app/login/page.tsx)",
+      "Bash(do head -1 \"$f\")",
+      "Bash(echo:*)",
+      "Bash(done)"
     ]
   }
 }
