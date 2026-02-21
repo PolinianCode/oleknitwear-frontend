@@ -23,7 +23,7 @@ export interface ApiProduct {
     sale_price_usd?: number | null;
     category_id: number;
     featured: boolean;
-    metadata?: Record<string, unknown>;
+    metadata?: Record<string, string>;
     created_at: string;
     updated_at: string;
     product_images: ProductImage[];
