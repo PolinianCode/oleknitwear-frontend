@@ -93,13 +93,6 @@ export default function ProductClient({ product, category, images }: ProductClie
                 </p>
               )}
 
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-[10px] font-bold uppercase tracking-widest">Select Size</span>
-                  <button className="text-[10px] text-brand border-b border-brand pb-0.5">Size Guide</button>
-                </div>
-              </div>
-
               <div className="flex gap-4">
                 <div className="flex items-center border border-stone-200 px-4">
                   <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="p-2"><Minus size={14} /></button>
@@ -120,23 +113,26 @@ export default function ProductClient({ product, category, images }: ProductClie
               </div>
 
               <div className="border-t border-stone-100 pt-6 space-y-4 pb-4">
-                <details className="group cursor-pointer">
-                  <summary className="flex justify-between items-center list-none text-[10px] font-bold uppercase tracking-widest">
-                    Composition & Care <Plus size={12} className="group-open:rotate-45 transition-transform" />
-                  </summary>
-                  <p className="mt-4 text-sm text-stone-500 leading-relaxed font-sans">
-                    100% Peruvian Highland Wool. Hand wash only in cool water with delicate detergent. Dry flat.
-                  </p>
-                </details>
                 <div className="h-[1px] bg-stone-100" />
-                <details className="group cursor-pointer">
-                  <summary className="flex justify-between items-center list-none text-[10px] font-bold uppercase tracking-widest">
-                    Shipping & Returns <Plus size={12} className="group-open:rotate-45 transition-transform" />
-                  </summary>
-                  <p className="mt-4 text-sm text-stone-500 leading-relaxed">
-                    Free worldwide shipping on orders over €400. Each piece is knitted to order; please allow 2-3 weeks for crafting.
-                  </p>
-                </details>
+                {product.metadata && Object.keys(product.metadata).length > 0 && (
+                  <div className="mt-8 space-y-4">
+                    {Object.entries(product.metadata).map(([key, value]) => (
+                      <details key={key} className="group cursor-pointer">
+                        <summary className="flex justify-between items-center list-none text-[10px] font-bold uppercase tracking-widest">
+                          {key}
+                          <Plus
+                            size={12}
+                            className="group-open:rotate-45 transition-transform"
+                          />
+                        </summary>
+
+                        <p className="mt-4 text-sm text-stone-500 leading-relaxed">
+                          {value}
+                        </p>
+                      </details>
+                    ))}
+                  </div>
+                )}
               </div>
 
             </div>

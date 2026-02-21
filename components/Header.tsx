@@ -188,7 +188,7 @@ export default function Header() {
         </div>
       </div>
       <div className={`
-        fixed inset-0 top-0 bg-white z-70 transition-transform duration-500 ease-in-out md:hidden
+        fixed inset-0 top-0 bg-white z-70 transition-transform duration-500 ease-in-out md:hidden overflow-auto
         ${isMenuOpen ? "translate-x-0" : "-translate-x-full"}
       `}>
 
