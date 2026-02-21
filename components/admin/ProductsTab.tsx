@@ -7,6 +7,7 @@ import { ProductModal } from "./ProductModal";
 import { DeleteModal } from "./DeleteModal";
 import { Pagination } from "@/components/Pagination";
 import { formatDate } from "./utils";
+import { getProduct } from "@/lib/api/products";
 
 const PER_PAGE = 10;
 
@@ -24,6 +25,7 @@ export function ProductsTab({ search, products, categories, loading }: ProductsT
     const [showAddModal, setShowAddModal] = useState(false);
     const [deleteTarget, setDeleteTarget] = useState<ApiProduct | null>(null);
     const [page, setPage] = useState(1);
+    const [loadingProductId, setLoadingProductId] = useState<string | null>(null);
 
     const toggleSort = (key: typeof sortKey) => {
         if (sortKey === key) setSortDir(sortDir === "asc" ? "desc" : "asc");
@@ -49,6 +51,18 @@ export function ProductsTab({ search, products, categories, loading }: ProductsT
     const totalPages = Math.ceil(filtered.length / PER_PAGE);
     const safePage = Math.min(page, totalPages || 1);
     const paginated = filtered.slice((safePage - 1) * PER_PAGE, safePage * PER_PAGE);
+
+    const handleEdit = async (product: ApiProduct) => {
+        setLoadingProductId(product.id);
+        try {
+            const full = await getProduct(product.id);
+            setModalProduct(full);
+        } catch {
+            setModalProduct(product);
+        } finally {
+            setLoadingProductId(null);
+        }
+    };
 
     const handleSaved = () => {
         setShowAddModal(false);
@@ -154,11 +168,12 @@ export function ProductsTab({ search, products, categories, loading }: ProductsT
                                     <td className="px-3 sm:px-5 py-4">
                                         <div className="flex items-center justify-end gap-1 sm:opacity-40 sm:group-hover:opacity-100 transition-opacity">
                                             <button
-                                                onClick={() => setModalProduct(product)}
-                                                className="p-2 text-stone-500 hover:text-stone-900 hover:bg-stone-100 rounded transition-colors hover:cursor-pointer"
+                                                onClick={() => handleEdit(product)}
+                                                disabled={loadingProductId === product.id}
+                                                className="p-2 text-stone-500 hover:text-stone-900 hover:bg-stone-100 rounded transition-colors hover:cursor-pointer disabled:opacity-50"
                                                 title="Edit"
                                             >
-                                                <Pencil size={14} />
+                                                {loadingProductId === product.id ? <Loader2 size={14} className="animate-spin" /> : <Pencil size={14} />}
                                             </button>
                                             <button
                                                 onClick={() => setDeleteTarget(product)}

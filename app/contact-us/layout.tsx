@@ -1,13 +1,18 @@
 import { Metadata } from "next";
 
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://ole-knitwear.com';
+
 export const metadata: Metadata = {
     title: 'Contact Us',
-    description: 'Get in touch with Ole Knitwear. Questions about sizing, custom orders, or just want to say hello? We\'d love to hear from you.',
+    description: 'Get in touch with Ole Knitwear. Questions about sizing, custom orders, or collaborations? We\'d love to hear from you.',
     keywords: ['contact ole knitwear', 'custom knitwear orders', 'handmade sweater inquiry', 'knitwear questions'],
+    alternates: {
+        canonical: `${baseUrl}/contact-us`,
+    },
     openGraph: {
         title: 'Contact Us | Ole Knitwear',
-        description: 'Get in touch with Ole Knitwear. Questions about sizing, custom orders, or just want to say hello? We\'d love to hear from you.',
-        url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://ole-knitwear.com'}/contact-us`,
+        description: 'Get in touch with Ole Knitwear. Questions about sizing, custom orders, or collaborations? We\'d love to hear from you.',
+        url: `${baseUrl}/contact-us`,
         type: 'website',
         images: [{
             url: '/og-image.png',

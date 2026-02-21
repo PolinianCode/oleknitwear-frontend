@@ -77,24 +77,60 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
     );
   }
 
+  const siteUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://ole-knitwear.com';
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
     "name": product.name,
-    "image": images.map(img => img.startsWith("http") ? img : `${process.env.NEXT_PUBLIC_BASE_URL || 'https://ole-knitwear.com'}${img}`),
-    "description": product.description,
+    "image": images.map(img => img.startsWith("http") ? img : `${siteUrl}${img}`),
+    "description": product.description || `${product.name} — handmade luxury knitwear by Ole Knitwear.`,
     "brand": {
       "@type": "Brand",
-      "name": "Ole Knitwear"
+      "name": "Ole Knitwear",
+      "url": siteUrl,
     },
+    "category": category?.name,
     "offers": {
       "@type": "Offer",
-      "url": `${process.env.NEXT_PUBLIC_BASE_URL || 'https://ole-knitwear.com'}/shop/${product.slug}`,
+      "url": `${siteUrl}/shop/${product.slug}`,
       "priceCurrency": currency,
       "price": priceInfo!.salePrice ?? priceInfo!.price,
       "availability": "https://schema.org/InStock",
-      "itemCondition": "https://schema.org/NewCondition"
-    }
+      "itemCondition": "https://schema.org/NewCondition",
+      "seller": {
+        "@type": "Organization",
+        "name": "Ole Knitwear",
+      },
+      "shippingDetails": {
+        "@type": "OfferShippingDetails",
+        "shippingRate": {
+          "@type": "MonetaryAmount",
+          "value": "0",
+          "currency": "USD",
+        },
+        "deliveryTime": {
+          "@type": "ShippingDeliveryTime",
+          "handlingTime": {
+            "@type": "QuantitativeValue",
+            "minValue": 14,
+            "maxValue": 21,
+            "unitCode": "DAY",
+          },
+        },
+      },
+    },
+  };
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": siteUrl },
+      { "@type": "ListItem", "position": 2, "name": "Shop", "item": `${siteUrl}/shop` },
+      ...(category ? [{ "@type": "ListItem", "position": 3, "name": category.name, "item": `${siteUrl}/shop?cat=${category.slug}` }] : []),
+      { "@type": "ListItem", "position": category ? 4 : 3, "name": product.name },
+    ],
   };
 
   return (
@@ -102,6 +138,10 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
       <div className="container mx-auto px-4">
 

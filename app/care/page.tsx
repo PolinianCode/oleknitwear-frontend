@@ -1,14 +1,19 @@
 import { Metadata } from 'next';
 import Breadcrumbs from '@/components/Breadcrumbs';
 
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://ole-knitwear.com';
+
 export const metadata: Metadata = {
-    title: 'Care Guide',
-    description: 'Learn how to care for your handmade knitwear. Expert tips on washing, drying, and preserving your luxury wool garments.',
-    keywords: ['knitwear care', 'wool care guide', 'hand wash wool', 'sweater care', 'cardigan maintenance'],
+    title: 'Care Guide for Hand-Knitted Knitwear',
+    description: 'Learn how to care for your handmade knitwear. Expert tips on washing, drying, and preserving your luxury wool garments from Ole Knitwear.',
+    keywords: ['knitwear care', 'wool care guide', 'hand wash wool', 'sweater care', 'cardigan maintenance', 'wool garment care'],
+    alternates: {
+        canonical: `${baseUrl}/care`,
+    },
     openGraph: {
         title: 'Care Guide for Hand-Knitted Knitwear | Ole Knitwear',
         description: 'Learn how to care for your handmade knitwear. Expert tips on washing, drying, and preserving your luxury wool garments.',
-        url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://ole-knitwear.com'}/care`,
+        url: `${baseUrl}/care`,
         type: 'article',
         images: [{
             url: '/og-image.png',
@@ -19,8 +24,8 @@ export const metadata: Metadata = {
     },
     twitter: {
         card: 'summary_large_image',
-        title: 'Care Guide for Hand-Knitted Knitwear',
-        description: 'Learn how to care for your handmade knitwear with expert tips.',
+        title: 'Care Guide for Hand-Knitted Knitwear | Ole Knitwear',
+        description: 'Learn how to care for your handmade knitwear. Expert tips on washing, drying, and preserving your luxury wool garments.',
         images: ['/og-image.png'],
     },
 };

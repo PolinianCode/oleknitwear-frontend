@@ -1,13 +1,18 @@
 import { Metadata } from "next";
 
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://ole-knitwear.com';
+
 export const metadata: Metadata = {
-    title: 'Shop',
-    description: 'Browse our collection of handcrafted luxury knitwear. Cardigans, sweaters, and accessories made with love.',
-    keywords: ['buy luxury knitwear', 'handmade cardigans', 'wool sweaters', 'bespoke knitwear shop', 'artisan clothing'],
+    title: 'Shop Handmade Knitwear',
+    description: 'Browse our collection of handcrafted luxury knitwear. Cardigans, sweaters, and accessories knitted by hand from premium wool. Free worldwide shipping.',
+    keywords: ['buy luxury knitwear', 'handmade cardigans', 'wool sweaters', 'bespoke knitwear shop', 'artisan clothing', 'Ukrainian knitwear'],
+    alternates: {
+        canonical: `${baseUrl}/shop`,
+    },
     openGraph: {
         title: 'Shop Handmade Knitwear | Ole Knitwear',
-        description: 'Browse our collection of handcrafted luxury knitwear.',
-        url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://ole-knitwear.com'}/shop`,
+        description: 'Browse our collection of handcrafted luxury knitwear. Cardigans, sweaters, and accessories knitted by hand from premium wool.',
+        url: `${baseUrl}/shop`,
         type: 'website',
         images: [{
             url: '/og-image.png',

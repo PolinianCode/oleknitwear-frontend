@@ -13,6 +13,11 @@ export async function getProducts(signal?: AbortSignal): Promise<ApiProduct[]> {
     return res.data;
 }
 
+export async function getProduct(id: string): Promise<ApiProduct> {
+    const res = await fetchApi<ApiResponse<ApiProduct>>(`/api/products/${id}`);
+    return res.data;
+}
+
 export async function createProduct(data: CreateProductPayload): Promise<ApiProduct> {
     const res = await fetchApi<ApiResponse<ApiProduct>>("/api/products", {
         method: "POST",
