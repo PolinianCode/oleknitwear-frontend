@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/app/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { ApiError } from "@/lib/api";
+import * as authApi from "@/lib/api/auth";
 import Link from "next/link";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { Loader2 } from "lucide-react";
@@ -15,6 +16,8 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [showResendVerification, setShowResendVerification] = useState(false);
+  const [resendEmail, setResendEmail] = useState("");
 
   useEffect(() => {
     if (!isLoading && user) {
@@ -25,15 +28,34 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setShowResendVerification(false);
     setSubmitting(true);
 
     try {
       await login(email, password);
       router.push("/");
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Something went wrong");
+      const errorMessage = err instanceof ApiError ? err.message : "Something went wrong";
+      setError(errorMessage);
+
+      // Check if error is related to email verification
+      if (err instanceof ApiError && errorMessage.toLowerCase().includes("verify your email")) {
+        setShowResendVerification(true);
+        setResendEmail(email);
+      }
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    try {
+      await authApi.resendVerification(resendEmail);
+      setError("");
+      setShowResendVerification(false);
+      alert("Verification email sent! Please check your inbox.");
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Failed to resend verification email");
     }
   };
 
@@ -86,12 +108,27 @@ export default function LoginPage() {
                   className="w-full border-b border-stone-200 py-3 focus:border-brand outline-none transition-colors font-light text-stone-900"
                   placeholder="Min 8 characters"
                 />
+                <div className="flex justify-end mt-1">
+                  <Link href="/forgot-password" className="text-xs text-stone-500 hover:text-brand transition-colors">
+                    Forgot password?
+                  </Link>
+                </div>
               </div>
 
               {error && (
                 <div className="px-4 py-3 bg-red-50 border border-red-100 text-red-600 text-sm rounded">
                   {error}
                 </div>
+              )}
+
+              {showResendVerification && (
+                <button
+                  type="button"
+                  onClick={handleResendVerification}
+                  className="w-full text-sm text-brand hover:underline"
+                >
+                  Resend verification email
+                </button>
               )}
 
               <button

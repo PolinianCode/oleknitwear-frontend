@@ -16,6 +16,7 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   useEffect(() => {
     if (!isLoading && user) {
@@ -30,7 +31,8 @@ export default function RegisterPage() {
 
     try {
       await register(email, password, fullName || undefined);
-      router.push("/");
+      setSuccess(true);
+      // Don't redirect - show verification message
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Something went wrong");
     } finally {
@@ -109,8 +111,15 @@ export default function RegisterPage() {
                 </div>
               )}
 
+              {success && (
+                <div className="px-4 py-4 bg-green-50 border border-green-200 text-green-700 text-sm rounded">
+                  <p className="font-medium mb-1">Registration successful!</p>
+                  <p>Please check your email ({email}) for a verification link to activate your account.</p>
+                </div>
+              )}
+
               <button
-                disabled={submitting}
+                disabled={submitting || success}
                 type="submit"
                 className="w-full bg-stone-900 text-white py-4 text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-brand transition-all disabled:bg-stone-300 hover:cursor-pointer"
               >
