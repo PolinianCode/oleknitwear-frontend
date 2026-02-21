@@ -1,4 +1,5 @@
-export const BASE_URL = "";
+const isServer = typeof window === "undefined";
+export const BASE_URL = isServer ? (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080") : "";
 
 export class ApiError extends Error {
     status: number;
