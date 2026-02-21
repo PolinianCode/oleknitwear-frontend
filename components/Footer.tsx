@@ -22,12 +22,6 @@ export default function Footer() {
                             >
                                 lekoval@gmail.com
                             </a>
-                            <a
-                                href="tel:+380631099202"
-                                className="block hover:translate-x-1 transition-transform"
-                            >
-                                +380 63 109 9202
-                            </a>
                         </div>
                     </div>
 
