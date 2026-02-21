@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import * as authApi from "@/lib/api/auth";
 import { ApiError } from "@/lib/api";
@@ -8,7 +8,7 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 import { Loader2, CheckCircle2, XCircle } from "lucide-react";
 import Link from "next/link";
 
-export default function VerifyEmailPage() {
+function VerifyEmailContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
@@ -99,3 +99,18 @@ export default function VerifyEmailPage() {
     </main>
   );
 }
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={
+      <main className="bg-stone-50 min-h-screen pt-32 pb-20 font-sans">
+        <div className="container mx-auto px-4 text-center">
+          <p className="text-stone-600">Loading...</p>
+        </div>
+      </main>
+    }>
+      <VerifyEmailContent />
+    </Suspense>
+  );
+}
+
