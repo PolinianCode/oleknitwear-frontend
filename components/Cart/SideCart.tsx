@@ -74,7 +74,7 @@ export default function SideCart() {
                                 <span className="text-2xl font-serif">{symbol}{totalPrice}</span>
                             </div>
                             <p className="text-[10px] text-stone-400 leading-relaxed italic">
-                                Shipping and taxes calculated at checkout. Free shipping on orders over {symbol}400.
+                                Shipping is free for orders worldwide.
                             </p>
                             <button className="w-full bg-stone-900 text-white py-5 text-[10px] font-bold uppercase tracking-[0.3em] hover:bg-brand transition-all shadow-xl active:scale-95">
                                 Checkout Now
