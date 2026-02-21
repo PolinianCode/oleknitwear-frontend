@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Mail, Instagram, Send } from "lucide-react";
 import Breadcrumbs from "@/components/Breadcrumbs";
+import { fetchApi } from "@/lib/api/client";
 
 const ContactContent = ({ icon, title, content }: { icon: React.ReactNode, title: string, content: string }) => (
     <div className="flex items-start gap-4 group">
@@ -15,12 +16,30 @@ const ContactContent = ({ icon, title, content }: { icon: React.ReactNode, title
 );
 
 export default function ContactPage() {
-    const [status, setStatus] = useState<"idle" | "sending" | "success">("idle");
+    const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
+    const [fullName, setFullName] = useState("");
+    const [email, setEmail] = useState("");
+    const [text, setText] = useState("");
+    const [errorMsg, setErrorMsg] = useState("");
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setStatus("sending");
-        setTimeout(() => setStatus("success"), 1500);
+        setErrorMsg("");
+
+        try {
+            await fetchApi("/api/contact", {
+                method: "POST",
+                body: JSON.stringify({ full_name: fullName, email, text }),
+            });
+            setStatus("success");
+            setFullName("");
+            setEmail("");
+            setText("");
+        } catch (err) {
+            setStatus("error");
+            setErrorMsg(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+        }
     };
 
     return (
@@ -45,8 +64,8 @@ export default function ContactPage() {
                                 <ContactItem
                                     icon={<Mail size={20} />}
                                     title="Email Us"
-                                    content="lekoval@gmail.com"
-                                    link="mailto:lekoval@gmail.com"
+                                    content="ole.knitting@gmail.com"
+                                    link="mailto:ole.knitting@gmail.com"
                                 />
                                 <ContactItem
                                     icon={<Instagram size={20} />}
@@ -84,6 +103,8 @@ export default function ContactPage() {
                                         <input
                                             required
                                             type="text"
+                                            value={fullName}
+                                            onChange={(e) => setFullName(e.target.value)}
                                             className="w-full border-b border-stone-200 py-3 focus:border-brand outline-none transition-colors font-light text-stone-900"
                                             placeholder="Jane Doe"
                                         />
@@ -94,6 +115,8 @@ export default function ContactPage() {
                                         <input
                                             required
                                             type="email"
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
                                             className="w-full border-b border-stone-200 py-3 focus:border-brand outline-none transition-colors font-light text-stone-900"
                                             placeholder="jane@example.com"
                                         />
@@ -104,10 +127,16 @@ export default function ContactPage() {
                                         <textarea
                                             required
                                             rows={4}
+                                            value={text}
+                                            onChange={(e) => setText(e.target.value)}
                                             className="w-full border-b border-stone-200 py-3 focus:border-brand outline-none transition-colors font-light text-stone-900 resize-none"
                                             placeholder="Tell us about your custom request..."
                                         />
                                     </div>
+
+                                    {status === "error" && (
+                                        <p className="text-sm text-red-600">{errorMsg}</p>
+                                    )}
 
                                     <button
                                         disabled={status === "sending"}

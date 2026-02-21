@@ -17,10 +17,10 @@ export default function Footer() {
                         </p>
                         <div className="space-y-2 text-sm font-sans">
                             <a
-                                href="mailto:lekoval@gmail.com"
+                                href="mailto:ole.knitting@gmail.com"
                                 className="block hover:translate-x-1 transition-transform border-b border-transparent hover:border-white/40 w-fit"
                             >
-                                lekoval@gmail.com
+                                ole.knitting@gmail.com
                             </a>
                         </div>
                     </div>
@@ -75,6 +75,9 @@ export default function Footer() {
                     <p>© {new Date().getFullYear()} Ole Knitwear. All rights reserved.</p>
                     <p className="italic font-serif normal-case tracking-normal text-sm text-white/70">
                         Made with love by Oleknitwear
+                    </p>
+                    <p className="normal-case tracking-normal text-[10px] text-white/40">
+                        Made by <a href="https://www.linkedin.com/in/danylo-koval-wro/" target="_blank" rel="noopener noreferrer" className="underline hover:text-white/70 transition-colors">Danylo Koval</a>
                     </p>
                 </div>
             </div>
