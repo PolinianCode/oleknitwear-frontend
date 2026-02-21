@@ -1,11 +1,16 @@
 "use client"
 
-import { products } from "@/data/products";
+import { useProducts, useCategories } from "@/lib/api/hooks";
 import ProductCard from "./products/ProductCard";
 import { useRouter } from "next/navigation";
 
 export default function FeaturedCollection() {
-    const router = useRouter()
+    const router = useRouter();
+    const { products, isLoading } = useProducts();
+    const { categories } = useCategories();
+
+    const featuredProducts = products.filter(p => p.featured);
+    const displayProducts = featuredProducts.length > 0 ? featuredProducts : products.slice(0, 4);
 
   return (
     <section className="py-24 bg-white">
@@ -22,11 +27,17 @@ export default function FeaturedCollection() {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-12">
-          {products.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="text-center py-20 font-serif italic text-stone-400 text-xl">
+            Loading...
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-12">
+            {displayProducts.map((product) => (
+              <ProductCard key={product.id} product={product} categories={categories} />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

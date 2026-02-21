@@ -2,15 +2,30 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { Product } from "@/data/products";
+import type { ApiProduct, ApiCategory } from "@/lib/api/types";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/app/context/CartContext";
+import { useCurrency } from "@/app/context/CurrencyContext";
 
-export default function ProductCard({ product }: { product: Product }) {
+interface ProductCardProps {
+  product: ApiProduct;
+  categories?: ApiCategory[];
+}
+
+export default function ProductCard({ product, categories }: ProductCardProps) {
   const [isHovered, setIsHovered] = useState(false);
 
   const router = useRouter()
   const { addToCart } = useCart();
+  const { getPrice } = useCurrency();
+
+  const images = product.product_images
+    ?.sort((a, b) => a.sort_order - b.sort_order)
+    .map(img => img.url) ?? [];
+
+  const categoryName = categories?.find(c => String(c.id) === String(product.category_id))?.name;
+
+  const { price, salePrice, symbol } = getPrice(product);
 
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -18,8 +33,8 @@ export default function ProductCard({ product }: { product: Product }) {
     addToCart({
       id: product.id,
       name: product.name,
-      price: product.price,
-      image: product.images[0],
+      price: salePrice ?? price,
+      image: images[0] || "/images/placeholder.png",
       quantity: 1
     });
   };
@@ -29,26 +44,34 @@ export default function ProductCard({ product }: { product: Product }) {
       className="group cursor-pointer animate-fade-up"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      onClick={() => router.push('/shop/' + product.id)}
+      onClick={() => router.push('/shop/' + product.slug)}
     >
       <div className="relative aspect-[3/4] overflow-hidden bg-stone-100 rounded-sm">
-        {product.isNew && (
+        {product.is_new && (
           <span className="absolute top-4 left-4 z-10 bg-brand/90 backdrop-blur-sm text-white text-[9px] font-bold px-2 py-1 uppercase tracking-[0.2em]">
             New In
           </span>
         )}
 
-        <Image
-          src={product.images[0]}
-          alt={product.name}
-          fill
-          className={`object-cover transition-opacity duration-700 ease-in-out ${isHovered && product.images[1] ? "opacity-0" : "opacity-100"
-            }`}
-        />
+        {product.is_sale && (
+          <span className="absolute top-4 right-4 z-10 bg-red-500/90 backdrop-blur-sm text-white text-[9px] font-bold px-2 py-1 uppercase tracking-[0.2em]">
+            Sale
+          </span>
+        )}
 
-        {product.images[1] && (
+        {images[0] && (
           <Image
-            src={product.images[1]}
+            src={images[0]}
+            alt={product.name}
+            fill
+            className={`object-cover transition-opacity duration-700 ease-in-out ${isHovered && images[1] ? "opacity-0" : "opacity-100"
+              }`}
+          />
+        )}
+
+        {images[1] && (
+          <Image
+            src={images[1]}
             alt={`${product.name} alternate`}
             fill
             className={`object-cover transition-opacity duration-700 ease-in-out ${isHovered ? "opacity-100 scale-105" : "opacity-0"
@@ -66,16 +89,31 @@ export default function ProductCard({ product }: { product: Product }) {
       <div className="mt-5 space-y-2 px-1">
         <div className="flex justify-between items-start">
           <div>
-            <p className="text-[9px] text-stone-400 uppercase tracking-[0.2em] font-sans mb-1">
-              {product.category}
-            </p>
+            {categoryName && (
+              <p className="text-[9px] text-stone-400 uppercase tracking-[0.2em] font-sans mb-1">
+                {categoryName}
+              </p>
+            )}
             <h3 className="font-serif text-base md:text-lg text-stone-800 leading-tight group-hover:text-brand transition-colors duration-300">
               {product.name}
             </h3>
           </div>
-          <span className="font-sans text-sm font-light text-stone-500">
-            {product.price} {product.currency}
-          </span>
+          <div className="text-right">
+            {salePrice ? (
+              <>
+                <span className="font-sans text-sm font-light text-red-500">
+                  {symbol}{salePrice}
+                </span>
+                <span className="font-sans text-xs font-light text-stone-400 line-through ml-1">
+                  {symbol}{price}
+                </span>
+              </>
+            ) : (
+              <span className="font-sans text-sm font-light text-stone-500">
+                {symbol}{price}
+              </span>
+            )}
+          </div>
         </div>
       </div>
     </div>

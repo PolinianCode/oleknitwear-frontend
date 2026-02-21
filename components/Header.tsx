@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { useCart } from "@/app/context/CartContext";
 import { useAuth } from "@/app/context/AuthContext";
+import { useCategories } from "@/lib/api/hooks";
+import { useCurrency, type CurrencyCode } from "@/app/context/CurrencyContext";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -12,9 +14,12 @@ export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const { setIsCartOpen, cart } = useCart();
   const { user, isLoading: authLoading, logout } = useAuth();
-  const [currency, setCurrency] = useState("USD");
+  const { currency, setCurrency } = useCurrency();
   const [isCurrencyOpen, setIsCurrencyOpen] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isShopDropdownOpen, setIsShopDropdownOpen] = useState(false);
+  const [isMobileShopOpen, setIsMobileShopOpen] = useState(true);
+  const { categories } = useCategories();
 
   const pathname = usePathname();
   const isHome = pathname === "/";
@@ -43,12 +48,7 @@ export default function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const currencies = [
-    { code: "PLN" },
-    { code: "UAH" },
-    { code: "USD" },
-    { code: "EUR" },
-  ];
+  const currencies: CurrencyCode[] = ["PLN", "UAH", "USD", "EUR"];
 
   const headerBg = isMenuOpen
     ? "bg-white"
@@ -72,7 +72,39 @@ export default function Header() {
         </button>
 
         <nav className="hidden md:flex items-center gap-8 text-[12px] uppercase tracking-[0.2em] font-bold">
-          <Link href="/shop" className="hover:text-brand transition-colors">Shop</Link>
+          <div
+            className="relative"
+            onMouseEnter={() => setIsShopDropdownOpen(true)}
+            onMouseLeave={() => setIsShopDropdownOpen(false)}
+          >
+            <Link href="/shop" className="flex items-center gap-1 hover:text-brand transition-colors">
+              Shop
+              <ChevronDown
+                size={12}
+                className={`transition-transform duration-300 ${isShopDropdownOpen ? "rotate-180" : ""}`}
+              />
+            </Link>
+
+            <div className={`absolute left-0 top-full pt-3 transition-all duration-200 ${isShopDropdownOpen ? "opacity-100 visible translate-y-0" : "opacity-0 invisible -translate-y-1"}`}>
+              <div className="bg-white shadow-2xl rounded-xl overflow-hidden border border-stone-100 min-w-[180px] py-1">
+                <Link
+                  href="/shop"
+                  className={`block px-5 py-3 text-[11px] uppercase tracking-widest transition-colors ${pathname === "/shop" ? "text-brand bg-stone-50" : "text-stone-600 hover:bg-stone-50 hover:text-brand"}`}
+                >
+                  All Products
+                </Link>
+                {categories.map((cat) => (
+                  <Link
+                    key={cat.id}
+                    href={`/shop?cat=${cat.slug}`}
+                    className="block px-5 py-3 text-[11px] uppercase tracking-widest text-stone-600 hover:bg-stone-50 hover:text-brand transition-colors"
+                  >
+                    {cat.name}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
           <Link href="/care" className="hover:text-brand transition-colors">Care Guide</Link>
           <Link href="/contact-us" className="hover:text-brand transition-colors">Contact Us</Link>
         </nav>
@@ -135,17 +167,17 @@ export default function Header() {
                 <div className="fixed inset-0 z-[-1]" onClick={() => setIsCurrencyOpen(false)} />
 
                 <div className="absolute right-0 mt-4 bg-white shadow-2xl rounded-xl overflow-hidden border border-stone-100 min-w-[140px] py-1 animate-fadeIn">
-                  {currencies.map((item) => (
+                  {currencies.map((code) => (
                     <button
-                      key={item.code}
+                      key={code}
                       onClick={() => {
-                        setCurrency(item.code);
+                        setCurrency(code);
                         setIsCurrencyOpen(false);
                       }}
-                      className={`w-full text-left px-4 py-3 text-[12px] uppercase tracking-widest transition-colors flex hover:cursor-pointer justify-between items-center ${currency === item.code ? "text-brand bg-stone-50" : "text-stone-600 hover:bg-stone-50 hover:text-brand"
+                      className={`w-full text-left px-4 py-3 text-[12px] uppercase tracking-widest transition-colors flex hover:cursor-pointer justify-between items-center ${currency === code ? "text-brand bg-stone-50" : "text-stone-600 hover:bg-stone-50 hover:text-brand"
                         }`}
                     >
-                      <span>{item.code}</span>
+                      <span>{code}</span>
                     </button>
                   ))}
                 </div>
@@ -167,20 +199,49 @@ export default function Header() {
         </div>
 
         <nav className="flex flex-col p-8 gap-8 mt-10">
-          <Link href="/shop" className="text-3xl font-serif text-stone-900 border-b border-stone-100 pb-4">Shop</Link>
+          <div className="border-b border-stone-100 pb-4">
+            <div className="flex items-center justify-between">
+              <Link href="/shop" className="text-3xl font-serif text-stone-900">Shop</Link>
+              <button
+                onClick={() => setIsMobileShopOpen(!isMobileShopOpen)}
+                className="p-2 hover:cursor-pointer"
+              >
+                <ChevronDown
+                  size={22}
+                  className={`text-stone-400 transition-transform duration-300 ${isMobileShopOpen ? "rotate-180" : ""}`}
+                />
+              </button>
+            </div>
+            <div className={`overflow-hidden transition-all duration-300 ${isMobileShopOpen ? "max-h-60 opacity-100 mt-4" : "max-h-0 opacity-0"}`}>
+              <div className="flex flex-col gap-3 pl-4">
+                <Link href="/shop" className="text-base text-stone-500 hover:text-brand transition-colors">
+                  All Products
+                </Link>
+                {categories.map((cat) => (
+                  <Link
+                    key={cat.id}
+                    href={`/shop?cat=${cat.slug}`}
+                    className="text-base text-stone-500 hover:text-brand transition-colors"
+                  >
+                    {cat.name}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
           <Link href="/care" className="text-3xl font-serif text-stone-900 border-b border-stone-100 pb-4">Care Guide</Link>
           <Link href="/contact-us" className="text-3xl font-serif text-stone-900 border-b border-stone-100 pb-4">Contact Us</Link>
 
           <div className="mt-8">
             <p className="text-[10px] uppercase tracking-[0.2em] text-stone-400 mb-6">Change Currency</p>
             <div className="flex gap-6">
-              {currencies.map(c => (
+              {currencies.map(code => (
                 <button
-                  key={c.code}
-                  onClick={() => { setCurrency(c.code); setIsMenuOpen(false); }}
-                  className={`text-sm font-bold tracking-widest ${currency === c.code ? "text-brand border-b-2 border-brand" : "text-stone-500"}`}
+                  key={code}
+                  onClick={() => { setCurrency(code); setIsMenuOpen(false); }}
+                  className={`text-sm font-bold tracking-widest ${currency === code ? "text-brand border-b-2 border-brand" : "text-stone-500"}`}
                 >
-                  {c.code}
+                  {code}
                 </button>
               ))}
             </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useState, useMemo, useEffect, useCallback } from "react";
-import { products } from "@/data/products";
+import { useProducts, useCategories } from "@/lib/api/hooks";
 import ProductCard from "@/components/products/ProductCard";
 import { SlidersHorizontal, X, Check } from "lucide-react";
 import Breadcrumbs from "@/components/Breadcrumbs";
@@ -26,26 +26,32 @@ function ShopContent() {
   const searchParams = useSearchParams();
   const categoryFromUrl = searchParams.get("cat");
 
-  const [activeCategory, setActiveCategory] = useState(categoryFromUrl || "All");
-  const [activeLength, setActiveLength] = useState<string | null>(null);
-  const [activeSeason, setActiveSeason] = useState<string | null>(null);
-  const [activeStatus, setActiveStatus] = useState<string | null>(null);
+  const { products, isLoading: productsLoading } = useProducts();
+  const { categories, isLoading: categoriesLoading } = useCategories();
+
+  const [activeCategory, setActiveCategory] = useState<string>("all");
   const [isFilterMobileOpen, setIsFilterMobileOpen] = useState(false);
   const [page, setPage] = useState(1);
 
+  useEffect(() => {
+    if (categoryFromUrl && categories.length > 0) {
+      const match = categories.find(c => c.slug === categoryFromUrl);
+      if (match) {
+        setActiveCategory(match.slug);
+      }
+    }
+  }, [categoryFromUrl, categories]);
+
   const filteredProducts = useMemo(() => {
-    return products.filter((p) => {
-      const matchCat = activeCategory === "All" || p.category === activeCategory;
-      const matchLength = !activeLength || p.length === activeLength;
-      const matchSeason = !activeSeason || p.season === activeSeason;
-      const matchStatus = !activeStatus || p.status === activeStatus;
-      return matchCat && matchLength && matchSeason && matchStatus;
-    });
-  }, [activeCategory, activeLength, activeSeason, activeStatus]);
+    if (activeCategory === "all") return products;
+    const cat = categories.find(c => c.slug === activeCategory);
+    if (!cat) return products;
+    return products.filter((p) => String(p.category_id) === String(cat.id));
+  }, [activeCategory, products, categories]);
 
   useEffect(() => {
     setPage(1);
-  }, [activeCategory, activeLength, activeSeason, activeStatus]);
+  }, [activeCategory]);
 
   const totalPages = Math.ceil(filteredProducts.length / PER_PAGE);
   const safePage = Math.min(page, totalPages || 1);
@@ -55,6 +61,8 @@ function ShopContent() {
     setPage(newPage);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
+
+  const isLoading = productsLoading || categoriesLoading;
 
   return (
     <main className="bg-stone-50 min-h-screen pt-32 pb-20">
@@ -69,44 +77,26 @@ function ShopContent() {
             <div>
               <FilterLabel title="Category" />
               <div className="flex flex-col gap-3">
-                {["All", "Cardigans", "Sweaters", "Accessories"].map(cat => (
+                <button
+                  onClick={() => setActiveCategory("all")}
+                  className={`text-left text-sm transition-colors cursor-pointer ${activeCategory === "all" ? "text-brand font-medium" : "text-stone-500 hover:text-stone-900"}`}
+                >
+                  All
+                </button>
+                {categories.map(cat => (
                   <button
-                    key={cat}
-                    onClick={() => setActiveCategory(cat)}
-                    className={`text-left text-sm transition-colors cursor-pointer ${activeCategory === cat ? "text-brand font-medium" : "text-stone-500 hover:text-stone-900"}`}
+                    key={cat.id}
+                    onClick={() => setActiveCategory(cat.slug)}
+                    className={`text-left text-sm transition-colors cursor-pointer ${activeCategory === cat.slug ? "text-brand font-medium" : "text-stone-500 hover:text-stone-900"}`}
                   >
-                    {cat}
+                    {cat.name}
                   </button>
                 ))}
               </div>
             </div>
 
-            <div>
-              <FilterLabel title="Length" />
-              <div className="flex flex-col gap-3">
-                <FilterButton label="Long" active={activeLength === 'long'} onClick={() => setActiveLength(activeLength === 'long' ? null : 'long')} />
-                <FilterButton label="Short" active={activeLength === 'short'} onClick={() => setActiveLength(activeLength === 'short' ? null : 'short')} />
-              </div>
-            </div>
-
-            <div>
-              <FilterLabel title="Season" />
-              <div className="flex flex-col gap-3">
-                <FilterButton label="Winter / Autumn" active={activeSeason === 'winter/autumn'} onClick={() => setActiveSeason(activeSeason === 'winter/autumn' ? null : 'winter/autumn')} />
-                <FilterButton label="Summer / Spring" active={activeSeason === 'summer/spring'} onClick={() => setActiveSeason(activeSeason === 'summer/spring' ? null : 'summer/spring')} />
-              </div>
-            </div>
-
-            <div>
-              <FilterLabel title="Availability" />
-              <div className="flex flex-col gap-3">
-                <FilterButton label="In Stock" active={activeStatus === 'in-stock'} onClick={() => setActiveStatus(activeStatus === 'in-stock' ? null : 'in-stock')} />
-                <FilterButton label="Pre-order" active={activeStatus === 'pre-order'} onClick={() => setActiveStatus(activeStatus === 'pre-order' ? null : 'pre-order')} />
-              </div>
-            </div>
-
             <button
-              onClick={() => { setActiveCategory("All"); setActiveLength(null); setActiveSeason(null); setActiveStatus(null); }}
+              onClick={() => { setActiveCategory("all"); }}
               className="text-[9px] uppercase tracking-widest text-stone-400 hover:text-brand border-b border-stone-200 pb-1 transition-colors cursor-pointer"
             >
               Clear all filters
@@ -121,19 +111,27 @@ function ShopContent() {
               <SlidersHorizontal size={14} /> Filter & Sort
             </button>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-16">
-              {paginatedProducts.map(product => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-
-            {filteredProducts.length === 0 && (
+            {isLoading ? (
               <div className="text-center py-20 font-serif italic text-stone-400 text-xl">
-                No items match your selection.
+                Loading products...
               </div>
-            )}
+            ) : (
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-16">
+                  {paginatedProducts.map(product => (
+                    <ProductCard key={product.id} product={product} categories={categories} />
+                  ))}
+                </div>
 
-            <Pagination currentPage={safePage} totalPages={totalPages} onPageChange={handlePageChange} />
+                {filteredProducts.length === 0 && (
+                  <div className="text-center py-20 font-serif italic text-stone-400 text-xl">
+                    No items match your selection.
+                  </div>
+                )}
+
+                <Pagination currentPage={safePage} totalPages={totalPages} onPageChange={handlePageChange} />
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -155,47 +153,32 @@ function ShopContent() {
             <section>
               <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] mb-4 text-stone-400">Category</h3>
               <div className="flex flex-wrap gap-2">
-                {["All", "Cardigans", "Sweaters", "Accessories"].map(cat => (
+                <button
+                  onClick={() => setActiveCategory("all")}
+                  className={`px-4 py-2 text-xs font-sans rounded-full border transition-all ${activeCategory === "all"
+                    ? "bg-stone-900 text-white border-stone-900"
+                    : "bg-white text-stone-500 border-stone-200"
+                    }`}
+                >
+                  All
+                </button>
+                {categories.map(cat => (
                   <button
-                    key={cat}
-                    onClick={() => setActiveCategory(cat)}
-                    className={`px-4 py-2 text-xs font-sans rounded-full border transition-all ${activeCategory === cat
+                    key={cat.id}
+                    onClick={() => setActiveCategory(cat.slug)}
+                    className={`px-4 py-2 text-xs font-sans rounded-full border transition-all ${activeCategory === cat.slug
                       ? "bg-stone-900 text-white border-stone-900"
                       : "bg-white text-stone-500 border-stone-200"
                       }`}
                   >
-                    {cat}
+                    {cat.name}
                   </button>
                 ))}
               </div>
             </section>
 
-            <section>
-              <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] mb-4 text-stone-400">Length</h3>
-              <div className="space-y-3">
-                <FilterButton label="Long" active={activeLength === 'long'} onClick={() => setActiveLength(activeLength === 'long' ? null : 'long')} />
-                <FilterButton label="Short" active={activeLength === 'short'} onClick={() => setActiveLength(activeLength === 'short' ? null : 'short')} />
-              </div>
-            </section>
-
-            <section>
-              <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] mb-4 text-stone-400">Season</h3>
-              <div className="space-y-3">
-                <FilterButton label="Winter / Autumn" active={activeSeason === 'winter/autumn'} onClick={() => setActiveSeason(activeSeason === 'winter/autumn' ? null : 'winter/autumn')} />
-                <FilterButton label="Summer / Spring" active={activeSeason === 'summer/spring'} onClick={() => setActiveSeason(activeSeason === 'summer/spring' ? null : 'summer/spring')} />
-              </div>
-            </section>
-
-            <section>
-              <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] mb-4 text-stone-400">Availability</h3>
-              <div className="space-y-3">
-                <FilterButton label="In Stock" active={activeStatus === 'in-stock'} onClick={() => setActiveStatus(activeStatus === 'in-stock' ? null : 'in-stock')} />
-                <FilterButton label="Pre-order" active={activeStatus === 'pre-order'} onClick={() => setActiveStatus(activeStatus === 'pre-order' ? null : 'pre-order')} />
-              </div>
-            </section>
-
             <button
-              onClick={() => { setActiveCategory("All"); setActiveLength(null); setActiveSeason(null); setActiveStatus(null); }}
+              onClick={() => { setActiveCategory("all"); }}
               className="w-full text-[10px] uppercase tracking-widest text-brand font-bold py-4 border-t border-stone-100 mt-4"
             >
               Clear all filters
@@ -213,19 +196,5 @@ function ShopContent() {
         </div>
       )}
     </main>
-  );
-}
-
-function FilterButton({ label, active, onClick }: { label: string, active: boolean, onClick: () => void }) {
-  return (
-    <button
-      onClick={onClick}
-      className={`flex items-center gap-3 text-sm transition-all cursor-pointer ${active ? "text-stone-900" : "text-stone-500 hover:text-stone-700"}`}
-    >
-      <div className={`w-4 h-4 border flex items-center justify-center transition-colors ${active ? "bg-brand border-brand" : "border-stone-300"}`}>
-        {active && <Check size={10} className="text-white" />}
-      </div>
-      <span className={active ? "font-medium" : "font-normal"}>{label}</span>
-    </button>
   );
 }
