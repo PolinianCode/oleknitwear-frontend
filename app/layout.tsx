@@ -8,6 +8,8 @@ import FreeDelivery from "@/components/FreeDelivery";
 import PageTransition from "@/components/PageTransition";
 import { CartProvider } from "./context/CartContext";
 import { AuthProvider } from "./context/AuthContext";
+import { WishlistProvider } from "./context/WishlistContext";
+import { CurrencyProvider } from "./context/CurrencyContext";
 import SideCart from "@/components/Cart/SideCart";
 
 const inter = Inter({
@@ -81,17 +83,21 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
       <body className="font-sans antialiased bg-stone-50 text-stone-900">
         <AuthProvider>
-          <CartProvider>
-            <FreeDelivery />
-            <Header />
-            <SideCart />
-            <main>
-              <PageTransition>
-                {children}
-              </PageTransition>
-            </main>
-            <Footer />
-          </CartProvider>
+          <CurrencyProvider>
+            <WishlistProvider>
+              <CartProvider>
+                <FreeDelivery />
+                <Header />
+                <SideCart />
+                <main>
+                  <PageTransition>
+                    {children}
+                  </PageTransition>
+                </main>
+                <Footer />
+              </CartProvider>
+            </WishlistProvider>
+          </CurrencyProvider>
         </AuthProvider>
       </body>
     </html>

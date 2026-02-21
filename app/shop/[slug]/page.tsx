@@ -1,36 +1,87 @@
 "use client";
 
-import { products } from "@/data/products";
 import { useState, use, useEffect } from "react";
+import { useProducts, useCategories } from "@/lib/api/hooks";
 import { useCart } from "@/app/context/CartContext";
+import { useWishlist } from "@/app/context/WishlistContext";
+import { useCurrency } from "@/app/context/CurrencyContext";
 import { Heart, Minus, Plus } from "lucide-react";
 import ProductGallery from "@/components/products/ProductGallery";
 import RecentlyViewed from "@/components/products/RecentlyViewed";
 import Breadcrumbs from "@/components/Breadcrumbs";
 
-export default function ProductPage({ params }: { params: Promise<{ id: string }> }) {
+export default function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const resolvedParams = use(params);
-  const productId = resolvedParams.id;
-  const product = products.find((p) => p.id === Number(productId)) || products[0];
+  const productSlug = resolvedParams.slug;
+  const { products, isLoading } = useProducts();
+  const { categories } = useCategories();
   const [quantity, setQuantity] = useState(1);
 
-  const { addToCart } = useCart()
+  const { addToCart } = useCart();
+  const { isInWishlist, toggleWishlist, isLoading: isWishlistLoading } = useWishlist();
+  const { getPrice, currency } = useCurrency();
+
+  const product = products.find((p) => p.slug === productSlug);
+
+  const images = product?.product_images
+    ?.sort((a, b) => a.sort_order - b.sort_order)
+    .map(img => img.url) ?? [];
+
+  const category = categories.find(c => String(c.id) === String(product?.category_id));
+
+  const priceInfo = product ? getPrice(product) : null;
+
+  const inWishlist = product ? isInWishlist(String(product.id)) : false;
 
   const handleAddToCart = () => {
+    if (!product || !priceInfo) return;
     addToCart({
       id: product.id,
       name: product.name,
-      price: product.price,
+      price: priceInfo.salePrice ?? priceInfo.price,
       quantity: quantity,
-      image: product.images[0],
+      image: images[0] || "/images/placeholder.png",
     });
   };
+
+  useEffect(() => {
+    if (product) {
+      const recentlyViewed: string[] = JSON.parse(localStorage.getItem("recently_viewed") || "[]");
+
+      const updatedList = [
+        product.slug,
+        ...recentlyViewed.filter((slug) => slug !== product.slug)
+      ].slice(0, 4);
+
+      localStorage.setItem("recently_viewed", JSON.stringify(updatedList));
+    }
+  }, [product]);
+
+  if (isLoading) {
+    return (
+      <main className="bg-white min-h-screen pt-24 md:pt-32 pb-20 font-sans">
+        <div className="container mx-auto px-4 text-center py-20 font-serif italic text-stone-400 text-xl">
+          Loading...
+        </div>
+      </main>
+    );
+  }
+
+  if (!product) {
+    return (
+      <main className="bg-white min-h-screen pt-24 md:pt-32 pb-20 font-sans">
+        <div className="container mx-auto px-4 text-center py-20 font-serif italic text-stone-400 text-xl">
+          Product not found.
+        </div>
+      </main>
+    );
+  }
 
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
     "name": product.name,
-    "image": product.images.map(img => `${process.env.NEXT_PUBLIC_BASE_URL || 'https://ole-knitwear.com'}${img}`),
+    "image": images.map(img => img.startsWith("http") ? img : `${process.env.NEXT_PUBLIC_BASE_URL || 'https://ole-knitwear.com'}${img}`),
     "description": product.description,
     "brand": {
       "@type": "Brand",
@@ -38,26 +89,13 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     },
     "offers": {
       "@type": "Offer",
-      "url": `${process.env.NEXT_PUBLIC_BASE_URL || 'https://ole-knitwear.com'}/shop/${product.id}`,
-      "priceCurrency": "EUR",
-      "price": product.price,
+      "url": `${process.env.NEXT_PUBLIC_BASE_URL || 'https://ole-knitwear.com'}/shop/${product.slug}`,
+      "priceCurrency": currency,
+      "price": priceInfo!.salePrice ?? priceInfo!.price,
       "availability": "https://schema.org/InStock",
       "itemCondition": "https://schema.org/NewCondition"
     }
   };
-
-  useEffect(() => {
-    if (product) {
-      const recentlyViewed = JSON.parse(localStorage.getItem("recently_viewed") || "[]");
-
-      const updatedList = [
-        product.id,
-        ...recentlyViewed.filter((id: number) => id !== product.id)
-      ].slice(0, 4);
-
-      localStorage.setItem("recently_viewed", JSON.stringify(updatedList));
-    }
-  }, [product]);
 
   return (
     <main className="bg-white min-h-screen pt-24 md:pt-32 pb-20 font-sans">
@@ -70,7 +108,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
         <Breadcrumbs
           items={[
             { label: "Shop", href: "/shop" },
-            { label: product.category, href: `/shop?cat=${product.category}` },
+            ...(category ? [{ label: category.name, href: `/shop?cat=${category.slug}` }] : []),
             { label: product.name }
           ]}
           className="mb-8"
@@ -79,7 +117,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
         <div className="flex flex-col lg:flex-row gap-12 xl:gap-24">
 
           <div className="flex-1 space-y-4">
-            <ProductGallery images={product.images} name={product.name} />
+            <ProductGallery images={images} name={product.name} />
           </div>
 
           <div className="lg:w-[400px]">
@@ -89,14 +127,29 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                 <h1 className="text-4xl md:text-5xl font-serif text-stone-900 leading-tight">
                   {product.name}
                 </h1>
-                <p className="text-2xl font-light text-stone-600">
-                  {product.price} {product.currency}
-                </p>
+                <div className="flex items-center gap-3">
+                  {priceInfo!.salePrice ? (
+                    <>
+                      <p className="text-2xl font-light text-red-500">
+                        {priceInfo!.symbol}{priceInfo!.salePrice}
+                      </p>
+                      <p className="text-lg font-light text-stone-400 line-through">
+                        {priceInfo!.symbol}{priceInfo!.price}
+                      </p>
+                    </>
+                  ) : (
+                    <p className="text-2xl font-light text-stone-600">
+                      {priceInfo!.symbol}{priceInfo!.price}
+                    </p>
+                  )}
+                </div>
               </header>
 
-              <p className="text-stone-500 text-sm leading-relaxed">
-                {product.description}
-              </p>
+              {product.description && (
+                <p className="text-stone-500 text-sm leading-relaxed">
+                  {product.description}
+                </p>
+              )}
 
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
@@ -114,8 +167,13 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                 <button onClick={handleAddToCart} className="flex-1 bg-brand text-white py-4 text-[10px] font-bold uppercase tracking-[0.2em] hover:brightness-110 transition-all active:scale-95 shadow-lg">
                   Add to Bag
                 </button>
-                <button className="p-4 border border-stone-200 hover:bg-stone-50 transition-colors">
-                  <Heart size={20} className="text-stone-400" />
+                <button
+                  onClick={() => toggleWishlist(String(product.id))}
+                  disabled={isWishlistLoading}
+                  className={`p-4 border hover:bg-stone-50 transition-colors disabled:opacity-50 hover:cursor-pointer ${inWishlist ? "border-red-200 bg-red-50/50" : "border-stone-200"
+                    }`}
+                >
+                  <Heart size={20} className={`transition-colors ${inWishlist ? 'text-red-500 fill-red-500' : 'text-stone-400'}`} />
                 </button>
               </div>
 
@@ -144,7 +202,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
           </div>
         </div>
       </div>
-      <RecentlyViewed />
+      <RecentlyViewed currentProductSlug={product.slug} />
     </main>
   );
 }

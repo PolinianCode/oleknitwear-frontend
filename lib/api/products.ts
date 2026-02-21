@@ -1,8 +1,12 @@
-import { mutate } from "swr";
 import { fetchApi } from "./client";
 import type { ApiProduct, ApiResponse, CreateProductPayload, UpdateProductPayload } from "./types";
 
 export const SWR_KEY_PRODUCTS = "/api/products";
+
+async function invalidateProducts() {
+    const { mutate } = await import("swr");
+    await mutate(SWR_KEY_PRODUCTS);
+}
 
 export async function getProducts(signal?: AbortSignal): Promise<ApiProduct[]> {
     const res = await fetchApi<ApiResponse<ApiProduct[]>>("/api/products", { signal });
@@ -14,7 +18,7 @@ export async function createProduct(data: CreateProductPayload): Promise<ApiProd
         method: "POST",
         body: JSON.stringify(data),
     });
-    await mutate(SWR_KEY_PRODUCTS);
+    await invalidateProducts();
     return res.data;
 }
 
@@ -23,11 +27,11 @@ export async function updateProduct(id: string, data: UpdateProductPayload): Pro
         method: "PUT",
         body: JSON.stringify(data),
     });
-    await mutate(SWR_KEY_PRODUCTS);
+    await invalidateProducts();
     return res.data;
 }
 
 export async function deleteProduct(id: string): Promise<void> {
     await fetchApi(`/api/products/${id}`, { method: "DELETE" });
-    await mutate(SWR_KEY_PRODUCTS);
+    await invalidateProducts();
 }
