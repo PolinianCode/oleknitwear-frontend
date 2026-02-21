@@ -22,15 +22,22 @@ const playfair = Playfair_Display({
   variable: "--font-serif",
 });
 
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://ole-knitwear.com';
+
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://ole-knitwear.com'),
+  metadataBase: new URL(baseUrl),
   title: {
-    default: "Ole Knitwear | Handmade Knitwear",
+    default: "Ole Knitwear | Handmade Luxury Knitwear",
     template: "%s | Ole Knitwear"
   },
-  description: "Handcrafted luxury knitwear created for women who don't follow trends. Bespoke woolen pieces with worldwide shipping.",
-  keywords: ["luxury knitwear", "handcrafted wool", "bespoke fashion", "women knitwear", "one-of-a-kind clothing"],
+  description: "Handcrafted luxury knitwear made in Ukraine. Bespoke cardigans, sweaters, and accessories from premium wool with free worldwide shipping.",
+  keywords: ["luxury knitwear", "handcrafted wool", "handmade cardigans", "bespoke fashion", "women knitwear", "Ukrainian knitwear", "wool sweaters", "artisan clothing"],
   authors: [{ name: "Ole Knitwear" }],
+  creator: "Ole Knitwear",
+  publisher: "Ole Knitwear",
+  alternates: {
+    canonical: baseUrl,
+  },
   manifest: '/site.webmanifest',
   icons: {
     icon: [
@@ -46,10 +53,10 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: process.env.NEXT_PUBLIC_BASE_URL || 'https://ole-knitwear.com',
+    url: baseUrl,
     siteName: 'Ole Knitwear',
     title: 'Ole Knitwear | Handmade Luxury Knitwear',
-    description: 'Handcrafted luxury knitwear created for women who don\'t follow trends. Bespoke woolen pieces with worldwide shipping.',
+    description: 'Handcrafted luxury knitwear made in Ukraine. Bespoke cardigans, sweaters, and accessories from premium wool with free worldwide shipping.',
     images: [{
       url: '/og-image.png',
       width: 1200,
@@ -61,7 +68,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Ole Knitwear | Handmade Luxury Knitwear',
-    description: 'Handcrafted luxury knitwear created for women who don\'t follow trends.',
+    description: 'Handcrafted luxury knitwear made in Ukraine. Bespoke woolen pieces with free worldwide shipping.',
     images: ['/og-image.png'],
   },
 
