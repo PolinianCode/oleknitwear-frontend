@@ -92,6 +92,7 @@ export interface UpdateProductPayload {
     is_in_stock?: boolean;
     is_pre_order?: boolean;
     metadata?: Record<string, string>;
+    images?: { id?: string; url: string; sort_order: number }[];
 }
 
 export interface CreateCategoryPayload {
