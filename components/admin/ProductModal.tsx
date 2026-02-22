@@ -1,11 +1,90 @@
 import { useState, useRef } from "react";
 import Image from "next/image";
-import { Plus, X, Upload, Loader2 } from "lucide-react";
+import { Plus, X, Upload, Loader2, ChevronUp, ChevronDown } from "lucide-react";
 import { ApiError } from "@/lib/api";
 import { createProduct, updateProduct } from "@/lib/api/products";
 import { uploadImage } from "@/lib/api/upload";
 import type { ApiProduct, ApiCategory, MetadataEntry } from "@/lib/api/types";
 import { metadataToEntries, entriesToMetadata } from "./utils";
+
+type ImageItem = {
+    url: string;
+    id?: string;
+    tempId: string;
+};
+
+const ImageGrid = ({
+    images,
+    onMoveUp,
+    onMoveDown,
+    onDelete,
+}: {
+    images: ImageItem[];
+    onMoveUp: (index: number) => void;
+    onMoveDown: (index: number) => void;
+    onDelete: (index: number) => void;
+}) => {
+    if (images.length === 0) return null;
+
+    return (
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+            {images.map((image, i) => (
+                <div key={image.tempId} className="space-y-2">
+                    {/* Image */}
+                    <div
+                        className="relative aspect-[3/4] bg-stone-100 rounded-lg overflow-hidden border-2 transition-all"
+                        style={{ borderColor: i === 0 ? 'rgb(120, 113, 108)' : 'rgb(229, 231, 235)' }}
+                    >
+                        <Image src={image.url} alt={`Image ${i + 1}`} fill className="object-cover" sizes="(max-width: 640px) 50vw, 33vw" />
+
+                        {/* Cover badge for first image */}
+                        {i === 0 && (
+                            <div className="absolute top-2 left-2 bg-stone-900 text-white text-[8px] font-bold uppercase tracking-wider px-2 py-1 rounded">
+                                Cover
+                            </div>
+                        )}
+
+                        {/* Position indicator */}
+                        <div className="absolute top-2 right-2 bg-white/90 text-stone-900 text-xs font-bold px-2 py-1 rounded">
+                            {i + 1}
+                        </div>
+                    </div>
+
+                    {/* Control buttons below image */}
+                    <div className="flex gap-1.5">
+                        {/* Reorder buttons */}
+                        <button
+                            type="button"
+                            onClick={() => onMoveUp(i)}
+                            disabled={i === 0}
+                            className="flex-1 p-3 bg-stone-100 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed hover:bg-stone-200 transition-colors active:bg-stone-300"
+                            aria-label="Move up"
+                        >
+                            <ChevronUp size={18} className="text-stone-700 mx-auto" />
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => onMoveDown(i)}
+                            disabled={i === images.length - 1}
+                            className="flex-1 p-3 bg-stone-100 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed hover:bg-stone-200 transition-colors active:bg-stone-300"
+                            aria-label="Move down"
+                        >
+                            <ChevronDown size={18} className="text-stone-700 mx-auto" />
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => onDelete(i)}
+                            className="flex-1 p-3 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors active:bg-red-200"
+                            aria-label="Delete image"
+                        >
+                            <X size={18} className="mx-auto" />
+                        </button>
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
+};
 
 interface ProductModalProps {
     product?: ApiProduct;
@@ -35,8 +114,12 @@ export function ProductModal({ product, categories, onClose, onSaved }: ProductM
     const [metaEntries, setMetaEntries] = useState<MetadataEntry[]>(
         metadataToEntries(product?.metadata)
     );
-    const [imageUrls, setImageUrls] = useState<string[]>(
-        product?.product_images?.map((img) => img.url).filter(Boolean) || []
+    const [images, setImages] = useState<ImageItem[]>(
+        product?.product_images?.map((img) => ({
+            url: img.url,
+            id: img.id,
+            tempId: img.id,
+        })) || []
     );
     const [uploading, setUploading] = useState(false);
     const [submitting, setSubmitting] = useState(false);
@@ -49,17 +132,60 @@ export function ProductModal({ product, categories, onClose, onSaved }: ProductM
         setUploading(true);
         setError("");
         try {
-            const urls: string[] = [];
+            const newImages: ImageItem[] = [];
             for (const file of Array.from(files)) {
-                urls.push(await uploadImage(file));
+                const url = await uploadImage(file);
+                newImages.push({
+                    url,
+                    tempId: crypto.randomUUID(),
+                });
             }
-            setImageUrls((prev) => [...prev, ...urls]);
+            setImages((prev) => [...prev, ...newImages]);
         } catch (err) {
             setError(err instanceof ApiError ? err.message : "Failed to upload image");
         } finally {
             setUploading(false);
             if (fileRef.current) fileRef.current.value = "";
         }
+    };
+
+    const moveImageUp = (index: number) => {
+        if (index === 0) return;
+        setImages((prev) => {
+            const newImages = [...prev];
+            [newImages[index - 1], newImages[index]] = [newImages[index], newImages[index - 1]];
+            return newImages;
+        });
+    };
+
+    const moveImageDown = (index: number) => {
+        if (index === images.length - 1) return;
+        setImages((prev) => {
+            const newImages = [...prev];
+            [newImages[index + 1], newImages[index]] = [newImages[index], newImages[index + 1]];
+            return newImages;
+        });
+    };
+
+    const deleteImage = async (index: number) => {
+        const image = images[index];
+
+        // Create mode: delete from R2 immediately (optional endpoint)
+        if (!isEdit && !image.id) {
+            try {
+                await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/upload/delete`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: image.url }),
+                    credentials: 'include',
+                });
+            } catch {
+                // Best-effort cleanup
+            }
+        }
+
+        // Remove from UI (backend will handle R2 cleanup on save for edit mode)
+        setImages((prev) => prev.filter((_, i) => i !== index));
     };
 
     const addMetaEntry = () => setMetaEntries((prev) => [...prev, { key: "", value: "" }]);
@@ -78,6 +204,13 @@ export function ProductModal({ product, categories, onClose, onSaved }: ProductM
         setSubmitting(true);
 
         const metadata = entriesToMetadata(metaEntries);
+
+        // Validate images
+        if (images.length === 0) {
+            setError("At least one image is required");
+            setSubmitting(false);
+            return;
+        }
 
         try {
             if (isEdit) {
@@ -99,13 +232,13 @@ export function ProductModal({ product, categories, onClose, onSaved }: ProductM
                     is_in_stock: isInStock,
                     is_pre_order: isPreOrder,
                     metadata: metadata || {},
+                    images: images.map((img, i) => ({
+                        id: img.id,
+                        url: img.url,
+                        sort_order: i,
+                    })),
                 });
             } else {
-                if (imageUrls.length === 0) {
-                    setError("At least one image is required");
-                    setSubmitting(false);
-                    return;
-                }
                 await createProduct({
                     name,
                     description: description || undefined,
@@ -124,7 +257,10 @@ export function ProductModal({ product, categories, onClose, onSaved }: ProductM
                     is_in_stock: isInStock,
                     is_pre_order: isPreOrder,
                     metadata: metadata || {},
-                    images: imageUrls.map((url, i) => ({ url, sort_order: i })),
+                    images: images.map((img, i) => ({
+                        url: img.url,
+                        sort_order: i,
+                    })),
                 });
             }
             onSaved();
@@ -460,70 +596,53 @@ export function ProductModal({ product, categories, onClose, onSaved }: ProductM
                         </fieldset>
 
                         <fieldset className="mb-8">
-                            <legend className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-900 mb-4 block">
-                                Images
-                                {isEdit && <span className="normal-case tracking-normal font-normal text-stone-400 ml-2">(read-only after creation)</span>}
-                            </legend>
+                            <div className="flex items-center justify-between mb-4">
+                                <legend className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-900">
+                                    Images {images.length > 0 && `(${images.length})`}
+                                </legend>
+                                <input
+                                    ref={fileRef}
+                                    type="file"
+                                    accept="image/jpeg,image/png,image/webp,image/avif"
+                                    multiple
+                                    onChange={handleFileSelect}
+                                    className="hidden"
+                                />
+                                <button
+                                    type="button"
+                                    disabled={uploading}
+                                    onClick={() => fileRef.current?.click()}
+                                    className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-brand hover:text-brand/70 transition-colors disabled:opacity-50"
+                                >
+                                    {uploading ? (
+                                        <><Loader2 size={14} className="animate-spin" /> Uploading...</>
+                                    ) : (
+                                        <><Upload size={14} /> Add Photos</>
+                                    )}
+                                </button>
+                            </div>
 
-                            {imageUrls.length > 0 && (
-                                <div className="flex flex-wrap gap-2 mb-3">
-                                    {imageUrls.map((url, i) => {
-                                        if (!url || typeof url !== 'string') return null;
-                                        let isValid = false;
-                                        try {
-                                            new URL(url);
-                                            isValid = true;
-                                        } catch {
-                                            if (url.startsWith("/")) isValid = true;
-                                        }
-
-                                        if (!isValid) return null;
-
-                                        return (
-                                            <div key={i} className="relative w-20 h-20 bg-stone-100 rounded overflow-hidden group">
-                                                <Image src={url} alt={`Image ${i + 1}`} fill className="object-cover" sizes="80px" />
-                                                {!isEdit && (
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => setImageUrls((prev) => prev.filter((_, j) => j !== i))}
-                                                        className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center hover:cursor-pointer"
-                                                    >
-                                                        <X size={16} className="text-white" />
-                                                    </button>
-                                                )}
-                                                {i === 0 && (
-                                                    <span className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-[8px] text-center uppercase tracking-wider py-0.5 font-bold">
-                                                        Cover
-                                                    </span>
-                                                )}
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            )}
-
-                            {!isEdit && (
-                                <>
-                                    <input
-                                        ref={fileRef}
-                                        type="file"
-                                        accept="image/jpeg,image/png,image/webp,image/avif"
-                                        multiple
-                                        onChange={handleFileSelect}
-                                        className="hidden"
-                                    />
+                            {images.length === 0 ? (
+                                <div className="py-12 text-center border-2 border-dashed border-stone-200 rounded-lg bg-stone-50">
+                                    <Upload size={32} className="mx-auto text-stone-300 mb-3" />
+                                    <p className="text-sm text-stone-400 mb-4">No images yet</p>
                                     <button
                                         type="button"
                                         disabled={uploading}
                                         onClick={() => fileRef.current?.click()}
-                                        className="flex items-center gap-2 w-full justify-center px-4 py-3 border border-dashed border-stone-300 rounded text-stone-500 text-[10px] font-bold uppercase tracking-widest hover:border-brand hover:text-brand transition-colors hover:cursor-pointer disabled:opacity-50"
+                                        className="text-[10px] font-bold uppercase tracking-widest text-brand hover:underline"
                                     >
-                                        {uploading ? (
-                                            <><Loader2 size={14} className="animate-spin" /> Uploading...</>
-                                        ) : (
-                                            <><Upload size={14} /> Upload Images</>
-                                        )}
+                                        Upload your first image
                                     </button>
+                                </div>
+                            ) : (
+                                <>
+                                    <ImageGrid
+                                        images={images}
+                                        onMoveUp={moveImageUp}
+                                        onMoveDown={moveImageDown}
+                                        onDelete={deleteImage}
+                                    />
                                 </>
                             )}
                         </fieldset>
