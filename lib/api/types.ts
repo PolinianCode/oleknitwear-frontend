@@ -23,6 +23,8 @@ export interface ApiProduct {
     sale_price_usd?: number | null;
     category_id: number;
     featured: boolean;
+    is_in_stock: boolean;
+    is_pre_order: boolean;
     metadata?: Record<string, string>;
     created_at: string;
     updated_at: string;
@@ -66,6 +68,8 @@ export interface CreateProductPayload {
     sale_price_usd?: number | null;
     category_id: number;
     featured?: boolean;
+    is_in_stock?: boolean;
+    is_pre_order?: boolean;
     metadata?: Record<string, string>;
     images: { url: string; sort_order: number }[];
 }
@@ -85,6 +89,8 @@ export interface UpdateProductPayload {
     sale_price_usd?: number | null;
     category_id?: number;
     featured?: boolean;
+    is_in_stock?: boolean;
+    is_pre_order?: boolean;
     metadata?: Record<string, string>;
 }
 
