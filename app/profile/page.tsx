@@ -44,12 +44,6 @@ export default function ProfilePage() {
   const [addressSaved, setAddressSaved] = useState(false);
 
   useEffect(() => {
-    if (!isLoading && !user) {
-      router.replace("/login");
-    }
-  }, [isLoading, user, router]);
-
-  useEffect(() => {
     const saved = localStorage.getItem(ADDRESS_STORAGE_KEY);
     if (saved) {
       try {

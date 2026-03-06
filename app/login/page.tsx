@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useAuth } from "@/app/context/AuthContext";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ApiError } from "@/lib/api";
 import * as authApi from "@/lib/api/auth";
 import Link from "next/link";
@@ -10,8 +10,22 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 import { Loader2 } from "lucide-react";
 
 export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <main className="bg-stone-50 min-h-screen pt-32 pb-20 font-sans flex items-center justify-center">
+        <Loader2 size={24} className="animate-spin text-stone-300" />
+      </main>
+    }>
+      <LoginContent />
+    </Suspense>
+  );
+}
+
+function LoginContent() {
   const { user, isLoading, login } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("from") || "/";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -21,9 +35,9 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (!isLoading && user) {
-      router.replace("/");
+      router.replace(redirectTo);
     }
-  }, [user, isLoading, router]);
+  }, [user, isLoading, router, redirectTo]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,7 +47,7 @@ export default function LoginPage() {
 
     try {
       await login(email, password);
-      router.push("/");
+      router.push(redirectTo);
     } catch (err) {
       const errorMessage = err instanceof ApiError ? err.message : "Something went wrong";
       setError(errorMessage);
