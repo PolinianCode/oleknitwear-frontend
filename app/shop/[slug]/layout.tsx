@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { getProducts } from '@/lib/api/products';
+import { getProductBySlug } from '@/lib/api/products';
 import { getCategories } from '@/lib/api/categories';
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://ole-knitwear.com';
@@ -12,8 +12,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const resolvedParams = await params;
 
     try {
-        const [products, categories] = await Promise.all([getProducts(), getCategories()]);
-        const product = products.find((p) => p.slug === resolvedParams.slug);
+        const [product, categories] = await Promise.all([
+            getProductBySlug(resolvedParams.slug),
+            getCategories(),
+        ]);
 
         if (!product) {
             return {
