@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Facebook, Instagram } from "lucide-react"
+import { Instagram } from "lucide-react"
 
 export default function Footer() {
     return (
@@ -31,6 +31,9 @@ export default function Footer() {
                             Navigation
                         </h3>
                         <nav className="flex flex-col gap-4 text-sm font-sans text-white/90">
+                            <Link href="/shop" className="hover:opacity-70 transition-opacity">
+                                Shop All
+                            </Link>
                             <Link href="/contact-us" className="hover:opacity-70 transition-opacity">
                                 Contact Us
                             </Link>
@@ -49,15 +52,6 @@ export default function Footer() {
                             Follow Us
                         </h3>
                         <div className="flex gap-6 items-center">
-                            <a
-                                href="https://facebook.com"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="hover:scale-110 transition-transform opacity-90 hover:opacity-100"
-                                aria-label="Facebook"
-                            >
-                                <Facebook size={20} strokeWidth={1.5} />
-                            </a>
                             <a
                                 href="https://instagram.com/ole.knitwear"
                                 target="_blank"

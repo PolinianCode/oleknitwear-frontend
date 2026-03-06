@@ -6,6 +6,7 @@ import { useWishlist } from "@/app/context/WishlistContext";
 import { useCurrency } from "@/app/context/CurrencyContext";
 import { Heart, Minus, Plus } from "lucide-react";
 import ProductGallery from "@/components/products/ProductGallery";
+import ProductCard from "@/components/products/ProductCard";
 import RecentlyViewed from "@/components/products/RecentlyViewed";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import type { ApiProduct, ApiCategory } from "@/lib/api/types";
@@ -14,9 +15,11 @@ interface ProductClientProps {
   product: ApiProduct;
   category?: ApiCategory;
   images: string[];
+  relatedProducts?: ApiProduct[];
+  categories?: ApiCategory[];
 }
 
-export default function ProductClient({ product, category, images }: ProductClientProps) {
+export default function ProductClient({ product, category, images, relatedProducts, categories }: ProductClientProps) {
   const [quantity, setQuantity] = useState(1);
   const { addToCart } = useCart();
   const { isInWishlist, toggleWishlist, isLoading: isWishlistLoading } = useWishlist();
@@ -50,7 +53,7 @@ export default function ProductClient({ product, category, images }: ProductClie
         <Breadcrumbs
           items={[
             { label: "Shop", href: "/shop" },
-            ...(category ? [{ label: category.name, href: `/shop?cat=${category.slug}` }] : []),
+            ...(category ? [{ label: category.name, href: `/shop/category/${category.slug}` }] : []),
             { label: product.name }
           ]}
           className="mb-8"
@@ -139,6 +142,22 @@ export default function ProductClient({ product, category, images }: ProductClie
           </div>
         </div>
       </div>
+      {relatedProducts && relatedProducts.length > 0 && (
+        <section className="py-12 md:py-20 border-t border-stone-100 overflow-hidden">
+          <div className="container mx-auto px-4">
+            <h2 className="text-[10px] uppercase tracking-[0.3em] font-bold text-stone-400 mb-8 md:mb-12 text-center">
+              You May Also Like
+            </h2>
+            <div className="flex md:grid md:grid-cols-4 gap-6 overflow-x-auto pb-4 md:pb-0 scrollbar-hide snap-x snap-mandatory">
+              {relatedProducts.map((p) => (
+                <div key={p.id} className="min-w-[200px] w-[70%] md:w-auto snap-start">
+                  <ProductCard product={p} categories={categories} />
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
       <RecentlyViewed currentProductSlug={product.slug} />
     </>
   );

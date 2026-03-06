@@ -1,13 +1,16 @@
 "use client"
 
-import { useProducts, useCategories } from "@/lib/api/hooks";
 import ProductCard from "./products/ProductCard";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
+import type { ApiProduct, ApiCategory } from "@/lib/api/types";
 
-export default function FeaturedCollection() {
-    const router = useRouter();
-    const { products, isLoading } = useProducts();
-    const { categories } = useCategories();
+interface FeaturedCollectionProps {
+    products: ApiProduct[];
+    categories: ApiCategory[];
+}
+
+export default function FeaturedCollection({ products, categories }: FeaturedCollectionProps) {
+    if (products.length === 0) return null;
 
     const featuredProducts = products.filter(p => p.featured);
     const displayProducts = featuredProducts.length > 0 ? featuredProducts : products.slice(0, 4);
@@ -22,22 +25,16 @@ export default function FeaturedCollection() {
               Meticulously handcrafted pieces designed to bring warmth and timeless style to your wardrobe.
             </p>
           </div>
-          <button onClick={() => router.push('/shop')} className="text-[10px] font-bold uppercase tracking-[0.2em] border-b border-brand text-brand pb-1 hover:opacity-70 transition-opacity">
+          <Link href="/shop" className="text-[10px] font-bold uppercase tracking-[0.2em] border-b border-brand text-brand pb-1 hover:opacity-70 transition-opacity">
             View All Products
-          </button>
+          </Link>
         </div>
 
-        {isLoading ? (
-          <div className="text-center py-20 font-serif italic text-stone-400 text-xl">
-            Loading...
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-12">
-            {displayProducts.map((product) => (
-              <ProductCard key={product.id} product={product} categories={categories} />
-            ))}
-          </div>
-        )}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-12">
+          {displayProducts.map((product) => (
+            <ProductCard key={product.id} product={product} categories={categories} />
+          ))}
+        </div>
       </div>
     </section>
   );

@@ -83,7 +83,10 @@ export default function ShopClient({ products, categories, initialCategory }: Sh
     <main className="bg-stone-50 min-h-screen pt-32 pb-20">
       <div className="container mx-auto px-4">
         <Breadcrumbs className="mb-6" />
-        <h1 className="text-4xl md:text-6xl font-serif text-stone-900 mb-12">The <span className="italic">Shop</span></h1>
+        <h1 className="text-4xl md:text-6xl font-serif text-stone-900 mb-4">The <span className="italic">Shop</span></h1>
+        <p className="text-stone-500 font-sans text-sm leading-relaxed max-w-2xl mb-12">
+          Discover our collection of handcrafted luxury knitwear. Each piece is hand-knitted from premium Italian wool in our family workshop in Ukraine. Free worldwide shipping on every order.
+        </p>
 
         <div className="flex flex-col lg:flex-row gap-12">
 

@@ -2,12 +2,14 @@ import Advantages from "@/components/Advantages"
 import FeaturedCollection from "@/components/FeaturedCollection"
 import HeroSlider from "@/components/HeroSlider"
 import OurHistory from "@/components/OurHistory"
+import { getProducts } from "@/lib/api/products"
+import { getCategories } from "@/lib/api/categories"
 
 const slides = [
   {
     id: 1,
     src: "/images/slide3.png",
-    alt: "Уютный вязаный свитер",
+    alt: "Woman wearing a cozy hand-knitted sweater by Ole Knitwear",
     title: "Warmth You Can Feel",
     subtitle: "HANDMADE WITH LOVE",
     buttonText: "Shop Collection",
@@ -17,8 +19,8 @@ const slides = [
   {
     id: 2,
     src: "/images/slide2.png",
-    alt: "Уютный вязаный свитер",
-    title: "Soft Handmaded wool",
+    alt: "Close-up of soft handmade wool knitwear texture",
+    title: "Soft Handmade Wool",
     subtitle: "PREMIUM MATERIALS",
     buttonText: "Explore care",
     isButtonPresent: true,
@@ -26,7 +28,18 @@ const slides = [
   }
 ]
 
-export default function Home() {
+export default async function Home() {
+  let products: Awaited<ReturnType<typeof getProducts>> = [];
+  let categories: Awaited<ReturnType<typeof getCategories>> = [];
+
+  try {
+    [products, categories] = await Promise.all([
+      getProducts(),
+      getCategories(),
+    ]);
+  } catch {
+    // API unavailable, render page without featured products
+  }
 
   const siteUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://ole-knitwear.com";
 
@@ -65,7 +78,7 @@ export default function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(webSiteJsonLd) }}
       />
       <HeroSlider slides={slides} />
-      <FeaturedCollection />
+      <FeaturedCollection products={products} categories={categories} />
       <OurHistory />
       <Advantages />
     </>

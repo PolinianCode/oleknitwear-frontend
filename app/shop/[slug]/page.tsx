@@ -5,6 +5,13 @@ import ProductClient from "./ProductClient";
 
 const siteUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://ole-knitwear.com";
 
+export async function generateStaticParams() {
+  const products = await getProducts();
+  return products.map((p) => ({ slug: p.slug }));
+}
+
+export const revalidate = 3600;
+
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const resolvedParams = await params;
 
@@ -25,6 +32,10 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   const isOnSale = product.is_sale && product.sale_price_usd;
   const price = product.price_usd ?? 0;
   const salePrice = isOnSale ? product.sale_price_usd : null;
+
+  const relatedProducts = products
+    .filter(p => String(p.category_id) === String(product.category_id) && p.slug !== product.slug)
+    .slice(0, 4);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -69,28 +80,13 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     },
   };
 
-  const breadcrumbJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "Home", "item": siteUrl },
-      { "@type": "ListItem", "position": 2, "name": "Shop", "item": `${siteUrl}/shop` },
-      ...(category ? [{ "@type": "ListItem", "position": 3, "name": category.name, "item": `${siteUrl}/shop?cat=${category.slug}` }] : []),
-      { "@type": "ListItem", "position": category ? 4 : 3, "name": product.name },
-    ],
-  };
-
   return (
     <main className="bg-white min-h-screen pt-24 md:pt-32 pb-20 font-sans">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
-      />
-      <ProductClient product={product} category={category} images={images} />
+      <ProductClient product={product} category={category} images={images} relatedProducts={relatedProducts} categories={categories} />
     </main>
   );
 }

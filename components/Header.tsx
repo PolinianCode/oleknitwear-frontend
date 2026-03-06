@@ -18,7 +18,7 @@ export default function Header() {
   const [isCurrencyOpen, setIsCurrencyOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isShopDropdownOpen, setIsShopDropdownOpen] = useState(false);
-  const [isMobileShopOpen, setIsMobileShopOpen] = useState(true);
+  const [isMobileShopOpen, setIsMobileShopOpen] = useState(false);
   const { categories } = useCategories();
 
   const pathname = usePathname();
@@ -96,7 +96,7 @@ export default function Header() {
                 {categories.map((cat) => (
                   <Link
                     key={cat.id}
-                    href={`/shop?cat=${cat.slug}`}
+                    href={`/shop/category/${cat.slug}`}
                     className="block px-5 py-3 text-[11px] uppercase tracking-widest text-stone-600 hover:bg-stone-50 hover:text-brand transition-colors"
                   >
                     {cat.name}
@@ -106,6 +106,7 @@ export default function Header() {
             </div>
           </div>
           <Link href="/care" className="hover:text-brand transition-colors">Care Guide</Link>
+          <Link href="/sizing-delivery" className="hover:text-brand transition-colors">Sizing & Delivery</Link>
           <Link href="/contact-us" className="hover:text-brand transition-colors">Contact Us</Link>
         </nav>
 
@@ -220,7 +221,7 @@ export default function Header() {
                 {categories.map((cat) => (
                   <Link
                     key={cat.id}
-                    href={`/shop?cat=${cat.slug}`}
+                    href={`/shop/category/${cat.slug}`}
                     className="text-base text-stone-500 hover:text-brand transition-colors"
                   >
                     {cat.name}
@@ -230,6 +231,7 @@ export default function Header() {
             </div>
           </div>
           <Link href="/care" className="text-3xl font-serif text-stone-900 border-b border-stone-100 pb-4">Care Guide</Link>
+          <Link href="/sizing-delivery" className="text-3xl font-serif text-stone-900 border-b border-stone-100 pb-4">Sizing & Delivery</Link>
           <Link href="/contact-us" className="text-3xl font-serif text-stone-900 border-b border-stone-100 pb-4">Contact Us</Link>
 
           <div className="mt-8">

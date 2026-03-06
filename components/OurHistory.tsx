@@ -13,18 +13,18 @@ export default function OurHistory() {
                             fill
                             sizes='(max-width: 400px) 100vw, (max-width: 1200px) 50vw, 33vw'
                             className="object-cover transition-transform duration-700 hover:scale-105"
-                            priority
+                            loading="lazy"
                         />
                     </div>
 
                     <div className="space-y-8">
                         <div>
-                            <h2 className="text-xs uppercase tracking-[0.4em] text-brand mb-4 font-sans font-semibold text-center lg:text-left">
+                            <span className="text-xs uppercase tracking-[0.4em] text-brand mb-4 font-sans font-semibold text-center lg:text-left block">
                                 Brand philosophy
-                            </h2>
-                            <h3 className="text-4xl md:text-5xl font-serif text-stone-900 text-center lg:text-left">
+                            </span>
+                            <h2 className="text-4xl md:text-5xl font-serif text-stone-900 text-center lg:text-left">
                                 Our Story
-                            </h3>
+                            </h2>
                         </div>
 
                         <div className="space-y-6 text-base font-normal text-stone-600 leading-loose font-sans">

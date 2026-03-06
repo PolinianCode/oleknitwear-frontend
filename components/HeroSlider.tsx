@@ -3,8 +3,8 @@
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from 'embla-carousel-autoplay';
 import Image from "next/image";
+import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 
 interface HeroSliderProps {
     slides: {
@@ -21,8 +21,6 @@ interface HeroSliderProps {
 
 export default function HeroSlider({ slides }: HeroSliderProps) {
     const [selectedIndex, setSelectedIndex] = useState(0);
-
-    const router = useRouter()
 
     const [emblaRef, emblaApi] = useEmblaCarousel(
         { loop: true, duration: 40 },
@@ -52,6 +50,7 @@ export default function HeroSlider({ slides }: HeroSliderProps) {
                             src={slide.src}
                             alt={slide.alt}
                             fill
+                            sizes="100vw"
                             priority={index === 0}
                             className="object-cover"
                         />
@@ -72,10 +71,10 @@ export default function HeroSlider({ slides }: HeroSliderProps) {
                                 </h2>
                             )}
                             {slide.isButtonPresent && (
-                                <button onClick={() => router.push(slide.buttonLink || "")} className="group relative overflow-hidden bg-white px-8 py-3.5 rounded-full text-stone-900 transition-all hover:pr-12 active:scale-95 hover:cursor-pointer">
+                                <Link href={slide.buttonLink || "/shop"} className="group relative overflow-hidden bg-white px-8 py-3.5 rounded-full text-stone-900 transition-all hover:pr-12 active:scale-95">
                                     <span className="font-medium">{slide.buttonText}</span>
                                     <span className="absolute right-4 opacity-0 transition-all group-hover:opacity-100"> → </span>
-                                </button>
+                                </Link>
                             )}
                         </div>
                     </div>
