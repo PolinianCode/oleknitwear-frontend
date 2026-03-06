@@ -2,6 +2,8 @@ import { getProducts } from "@/lib/api/products";
 import { getCategories } from "@/lib/api/categories";
 import { MetadataRoute } from 'next';
 
+export const revalidate = 3600;
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://ole-knitwear.com';
