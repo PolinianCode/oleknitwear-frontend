@@ -50,12 +50,19 @@ export default async function Home() {
     "url": siteUrl,
     "logo": `${siteUrl}/images/logo.png`,
     "description": "Handcrafted luxury knitwear made in Ukraine. Bespoke cardigans, sweaters, and accessories from premium wool.",
+    "foundingDate": "2023",
+    "areaServed": ["UA", "PL", "US", "EU"],
+    "address": {
+      "@type": "PostalAddress",
+      "addressCountry": "UA",
+    },
     "sameAs": [
       "https://instagram.com/ole.knitwear",
     ],
     "contactPoint": {
       "@type": "ContactPoint",
       "contactType": "customer service",
+      "email": "ole.knitting@gmail.com",
       "url": `${siteUrl}/contact-us`,
     },
   };
@@ -65,6 +72,14 @@ export default async function Home() {
     "@type": "WebSite",
     "name": "Ole Knitwear",
     "url": siteUrl,
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": `${siteUrl}/shop?q={search_term_string}`,
+      },
+      "query-input": "required name=search_term_string",
+    },
   };
 
   return (
@@ -77,6 +92,7 @@ export default async function Home() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(webSiteJsonLd) }}
       />
+      <h1 className="sr-only">Handmade Luxury Knitwear — Ole Knitwear, Crafted in Ukraine</h1>
       <HeroSlider slides={slides} />
       <FeaturedCollection products={products} categories={categories} />
       <OurHistory />

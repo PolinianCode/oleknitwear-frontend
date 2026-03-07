@@ -61,15 +61,9 @@ export default function HeroSlider({ slides }: HeroSliderProps) {
                                     {slide.subtitle}
                                 </span>
                             )}
-                            {index === 0 ? (
-                                <h1 className="max-w-3xl text-4xl md:text-6xl font-serif mb-8 leading-tight">
-                                    {slide.title}
-                                </h1>
-                            ) : (
-                                <h2 className="max-w-3xl text-4xl md:text-6xl font-serif mb-8 leading-tight">
-                                    {slide.title}
-                                </h2>
-                            )}
+                            <h2 className="max-w-3xl text-4xl md:text-6xl font-serif mb-8 leading-tight">
+                                {slide.title}
+                            </h2>
                             {slide.isButtonPresent && (
                                 <Link href={slide.buttonLink || "/shop"} className="group relative overflow-hidden bg-white px-8 py-3.5 rounded-full text-stone-900 transition-all hover:pr-12 active:scale-95">
                                     <span className="font-medium">{slide.buttonText}</span>

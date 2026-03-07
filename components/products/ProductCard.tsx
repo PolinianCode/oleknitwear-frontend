@@ -61,7 +61,7 @@ export default function ProductCard({ product, categories }: ProductCardProps) {
         {images[0] && (
           <Image
             src={images[0]}
-            alt={product.name}
+            alt={`${product.name}${categoryName ? ` — Handmade ${categoryName} by Ole Knitwear` : ''}`}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
             className={`object-cover transition-opacity duration-700 ease-in-out ${isHovered && images[1] ? "opacity-0" : "opacity-100"

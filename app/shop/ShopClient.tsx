@@ -3,7 +3,6 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import ProductCard from "@/components/products/ProductCard";
 import { SlidersHorizontal, X } from "lucide-react";
-import Breadcrumbs from "@/components/Breadcrumbs";
 import { Pagination } from "@/components/Pagination";
 import type { ApiProduct, ApiCategory } from "@/lib/api/types";
 
@@ -80,14 +79,7 @@ export default function ShopClient({ products, categories, initialCategory }: Sh
   }, []);
 
   return (
-    <main className="bg-stone-50 min-h-screen pt-32 pb-20">
-      <div className="container mx-auto px-4">
-        <Breadcrumbs className="mb-6" />
-        <h1 className="text-4xl md:text-6xl font-serif text-stone-900 mb-4">The <span className="italic">Shop</span></h1>
-        <p className="text-stone-500 font-sans text-sm leading-relaxed max-w-2xl mb-12">
-          Discover our collection of handcrafted luxury knitwear. Each piece is hand-knitted from premium Italian wool in our family workshop in Ukraine. Free worldwide shipping on every order.
-        </p>
-
+    <div className="flex-1">
         <div className="flex flex-col lg:flex-row gap-12">
 
           <aside className="hidden lg:block w-64 space-y-12 animate-fade-in">
@@ -206,7 +198,6 @@ export default function ShopClient({ products, categories, initialCategory }: Sh
             <Pagination currentPage={safePage} totalPages={totalPages} onPageChange={handlePageChange} />
           </div>
         </div>
-      </div>
 
       {isFilterMobileOpen && (
         <div className="fixed inset-0 z-[100] bg-white overflow-y-auto animate-fadeIn flex flex-col">
@@ -329,6 +320,6 @@ export default function ShopClient({ products, categories, initialCategory }: Sh
           </div>
         </div>
       )}
-    </main>
+    </div>
   );
 }

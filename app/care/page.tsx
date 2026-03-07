@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import Breadcrumbs from '@/components/Breadcrumbs';
 
 const siteUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://ole-knitwear.com';
@@ -107,12 +108,12 @@ export default function CareGuide() {
                         <p className="text-stone-500 font-sans text-sm max-w-md mx-auto leading-relaxed mb-6">
                             Each cardigan carries the warmth of the hands that made it. When you care for it thoughtfully, it becomes a companion, aging gracefully by your side.
                         </p>
-                        <a
+                        <Link
                             href="/shop"
                             className="text-[10px] font-bold uppercase tracking-[0.2em] border-b border-brand text-brand pb-1 hover:opacity-70 transition-opacity"
                         >
                             Shop Our Collection
-                        </a>
+                        </Link>
                     </footer>
 
                 </div>

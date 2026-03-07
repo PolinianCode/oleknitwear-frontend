@@ -46,24 +46,34 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     }
   }
 
+  const availability = product.is_pre_order
+    ? "https://schema.org/PreOrder"
+    : product.is_in_stock
+      ? "https://schema.org/InStock"
+      : "https://schema.org/OutOfStock";
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
     "name": product.name,
     "image": images.map(img => img.startsWith("http") ? img : `${siteUrl}${img}`),
     "description": product.description || `${product.name} — handmade luxury knitwear by Ole Knitwear.`,
+    "sku": product.slug,
     "brand": {
       "@type": "Brand",
       "name": "Ole Knitwear",
       "url": siteUrl,
     },
     "category": category?.name,
+    ...(product.metadata?.material && { "material": product.metadata.material }),
+    ...(product.metadata?.color && { "color": product.metadata.color }),
     "offers": {
       "@type": "Offer",
       "url": `${siteUrl}/shop/${product.slug}`,
       "priceCurrency": "USD",
       "price": salePrice ?? price,
-      "availability": "https://schema.org/InStock",
+      ...(isOnSale && { "priceValidUntil": new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] }),
+      "availability": availability,
       "itemCondition": "https://schema.org/NewCondition",
       "seller": {
         "@type": "Organization",
@@ -80,11 +90,18 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           "@type": "ShippingDeliveryTime",
           "handlingTime": {
             "@type": "QuantitativeValue",
-            "minValue": 14,
-            "maxValue": 21,
+            "minValue": product.is_pre_order ? 14 : 1,
+            "maxValue": product.is_pre_order ? 21 : 3,
             "unitCode": "DAY",
           },
         },
+      },
+      "hasMerchantReturnPolicy": {
+        "@type": "MerchantReturnPolicy",
+        "applicableCountry": ["US", "UA", "PL"],
+        "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
+        "merchantReturnDays": 14,
+        "returnMethod": "https://schema.org/ReturnByMail",
       },
     },
   };

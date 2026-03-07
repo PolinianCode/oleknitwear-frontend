@@ -41,7 +41,7 @@ export default function Footer() {
                                 Sizing guide & Delivery terms
                             </Link>
                             <Link href="/care" className="hover:opacity-70 transition-opacity">
-                                Take Care
+                                Care Guide
                             </Link>
                         </nav>
                     </div>
