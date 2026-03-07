@@ -1,9 +1,9 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
 import type { ApiProduct, ApiCategory } from "@/lib/api/types";
-import { useRouter } from "next/navigation";
 import { useCart } from "@/app/context/CartContext";
 import { useCurrency } from "@/app/context/CurrencyContext";
 
@@ -15,7 +15,6 @@ interface ProductCardProps {
 export default function ProductCard({ product, categories }: ProductCardProps) {
   const [isHovered, setIsHovered] = useState(false);
 
-  const router = useRouter()
   const { addToCart } = useCart();
   const { getPrice } = useCurrency();
 
@@ -40,11 +39,11 @@ export default function ProductCard({ product, categories }: ProductCardProps) {
   };
 
   return (
-    <div
-      className="group cursor-pointer animate-fade-up"
+    <Link
+      href={`/shop/${product.slug}`}
+      className="group cursor-pointer animate-fade-up block"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      onClick={() => router.push('/shop/' + product.slug)}
     >
       <div className="relative aspect-[3/4] overflow-hidden bg-stone-100 rounded-sm">
         {product.is_new && (
@@ -62,8 +61,9 @@ export default function ProductCard({ product, categories }: ProductCardProps) {
         {images[0] && (
           <Image
             src={images[0]}
-            alt={product.name}
+            alt={`${product.name}${categoryName ? ` — Handmade ${categoryName} by Ole Knitwear` : ''}`}
             fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
             className={`object-cover transition-opacity duration-700 ease-in-out ${isHovered && images[1] ? "opacity-0" : "opacity-100"
               }`}
           />
@@ -74,6 +74,7 @@ export default function ProductCard({ product, categories }: ProductCardProps) {
             src={images[1]}
             alt={`${product.name} alternate`}
             fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
             className={`object-cover transition-opacity duration-700 ease-in-out ${isHovered ? "opacity-100 scale-105" : "opacity-0"
               }`}
           />
@@ -116,6 +117,6 @@ export default function ProductCard({ product, categories }: ProductCardProps) {
           </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import { notFound } from "next/navigation";
 import { useAuth } from "@/app/context/AuthContext";
 import Breadcrumbs from "@/components/Breadcrumbs";
@@ -9,9 +10,9 @@ import {
   Users, Package, Search, Tag, RefreshCw, Loader2,
 } from "lucide-react";
 
-import { CustomersTable } from "@/components/admin/CustomersTable";
-import { ProductsTab } from "@/components/admin/ProductsTab";
-import { CategoriesTab } from "@/components/admin/CategoriesTab";
+const CustomersTable = dynamic(() => import("@/components/admin/CustomersTable").then(m => m.CustomersTable));
+const ProductsTab = dynamic(() => import("@/components/admin/ProductsTab").then(m => m.ProductsTab));
+const CategoriesTab = dynamic(() => import("@/components/admin/CategoriesTab").then(m => m.CategoriesTab));
 
 export default function AdminPage() {
   const { user, isLoading } = useAuth();

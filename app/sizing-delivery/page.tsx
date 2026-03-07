@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { Truck, Clock, Package, MapPin } from "lucide-react";
 
@@ -114,12 +115,12 @@ export default function SizingDeliveryPage() {
                         <p className="text-stone-500 font-sans text-sm max-w-md mx-auto leading-relaxed mb-6">
                             If you have any questions about shipping or delivery times, don&apos;t hesitate to reach out. We&apos;re always happy to help.
                         </p>
-                        <a
+                        <Link
                             href="/contact-us"
                             className="text-[10px] font-bold uppercase tracking-[0.2em] border-b border-brand text-brand pb-1 hover:opacity-70 transition-opacity"
                         >
                             Contact Us
-                        </a>
+                        </Link>
                     </footer>
 
                 </div>

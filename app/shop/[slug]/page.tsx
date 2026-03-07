@@ -1,21 +1,29 @@
-import { getProducts } from "@/lib/api/products";
+import { getProducts, getProductBySlug } from "@/lib/api/products";
 import { getCategories } from "@/lib/api/categories";
 import { notFound } from "next/navigation";
 import ProductClient from "./ProductClient";
+import type { ApiProduct } from "@/lib/api/types";
 
 const siteUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://ole-knitwear.com";
+
+export async function generateStaticParams() {
+  const products = await getProducts();
+  return products.map((p) => ({ slug: p.slug }));
+}
+
+export const revalidate = 3600;
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const resolvedParams = await params;
 
-  const [products, categories] = await Promise.all([
-    getProducts(),
-    getCategories(),
-  ]);
+  let product: ApiProduct;
+  try {
+    product = await getProductBySlug(resolvedParams.slug);
+  } catch {
+    notFound();
+  }
 
-  const product = products.find((p) => p.slug === resolvedParams.slug);
-  if (!product) notFound();
-
+  const categories = await getCategories();
   const category = categories.find(c => String(c.id) === String(product.category_id));
 
   const images = product.product_images
@@ -26,24 +34,46 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   const price = product.price_usd ?? 0;
   const salePrice = isOnSale ? product.sale_price_usd : null;
 
+  let relatedProducts: ApiProduct[] = [];
+  if (product.category_id) {
+    try {
+      const categoryProducts = await getProducts(undefined, product.category_id);
+      relatedProducts = categoryProducts
+        .filter(p => p.slug !== product.slug)
+        .slice(0, 4);
+    } catch {
+      // Related products are non-critical
+    }
+  }
+
+  const availability = product.is_pre_order
+    ? "https://schema.org/PreOrder"
+    : product.is_in_stock
+      ? "https://schema.org/InStock"
+      : "https://schema.org/OutOfStock";
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
     "name": product.name,
     "image": images.map(img => img.startsWith("http") ? img : `${siteUrl}${img}`),
     "description": product.description || `${product.name} — handmade luxury knitwear by Ole Knitwear.`,
+    "sku": product.slug,
     "brand": {
       "@type": "Brand",
       "name": "Ole Knitwear",
       "url": siteUrl,
     },
     "category": category?.name,
+    ...(product.metadata?.material && { "material": product.metadata.material }),
+    ...(product.metadata?.color && { "color": product.metadata.color }),
     "offers": {
       "@type": "Offer",
       "url": `${siteUrl}/shop/${product.slug}`,
       "priceCurrency": "USD",
       "price": salePrice ?? price,
-      "availability": "https://schema.org/InStock",
+      ...(isOnSale && { "priceValidUntil": new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] }),
+      "availability": availability,
       "itemCondition": "https://schema.org/NewCondition",
       "seller": {
         "@type": "Organization",
@@ -60,24 +90,20 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           "@type": "ShippingDeliveryTime",
           "handlingTime": {
             "@type": "QuantitativeValue",
-            "minValue": 14,
-            "maxValue": 21,
+            "minValue": product.is_pre_order ? 14 : 1,
+            "maxValue": product.is_pre_order ? 21 : 3,
             "unitCode": "DAY",
           },
         },
       },
+      "hasMerchantReturnPolicy": {
+        "@type": "MerchantReturnPolicy",
+        "applicableCountry": ["US", "UA", "PL"],
+        "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
+        "merchantReturnDays": 14,
+        "returnMethod": "https://schema.org/ReturnByMail",
+      },
     },
-  };
-
-  const breadcrumbJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "Home", "item": siteUrl },
-      { "@type": "ListItem", "position": 2, "name": "Shop", "item": `${siteUrl}/shop` },
-      ...(category ? [{ "@type": "ListItem", "position": 3, "name": category.name, "item": `${siteUrl}/shop?cat=${category.slug}` }] : []),
-      { "@type": "ListItem", "position": category ? 4 : 3, "name": product.name },
-    ],
   };
 
   return (
@@ -86,11 +112,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
-      />
-      <ProductClient product={product} category={category} images={images} />
+      <ProductClient product={product} category={category} images={images} relatedProducts={relatedProducts} categories={categories} />
     </main>
   );
 }

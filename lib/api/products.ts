@@ -8,13 +8,22 @@ async function invalidateProducts() {
     await mutate(SWR_KEY_PRODUCTS);
 }
 
-export async function getProducts(signal?: AbortSignal): Promise<ApiProduct[]> {
-    const res = await fetchApi<ApiResponse<ApiProduct[]>>("/api/products", { signal });
+export async function getProducts(signal?: AbortSignal, categoryId?: number): Promise<ApiProduct[]> {
+    const params = new URLSearchParams();
+    if (categoryId) params.set("category_id", String(categoryId));
+    const query = params.toString();
+    const url = query ? `/api/products?${query}` : "/api/products";
+    const res = await fetchApi<ApiResponse<ApiProduct[]>>(url, { signal });
     return res.data;
 }
 
 export async function getProduct(id: string): Promise<ApiProduct> {
     const res = await fetchApi<ApiResponse<ApiProduct>>(`/api/products/${id}`);
+    return res.data;
+}
+
+export async function getProductBySlug(slug: string): Promise<ApiProduct> {
+    const res = await fetchApi<ApiResponse<ApiProduct>>(`/api/products/by-slug/${encodeURIComponent(slug)}`);
     return res.data;
 }
 

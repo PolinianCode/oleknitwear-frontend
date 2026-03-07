@@ -29,6 +29,27 @@ export const metadata: Metadata = {
     },
 };
 
+const contactPageJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ContactPage",
+    "name": "Contact Ole Knitwear",
+    "url": `${baseUrl}/contact-us`,
+    "mainEntity": {
+        "@type": "Organization",
+        "name": "Ole Knitwear",
+        "email": "ole.knitting@gmail.com",
+        "url": baseUrl,
+    },
+};
+
 export default function ContactUsLayout({ children }: { children: React.ReactNode }) {
-    return <>{children}</>;
+    return (
+        <>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(contactPageJsonLd) }}
+            />
+            {children}
+        </>
+    );
 }

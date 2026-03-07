@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { getProducts } from '@/lib/api/products';
+import { getProductBySlug } from '@/lib/api/products';
 import { getCategories } from '@/lib/api/categories';
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://ole-knitwear.com';
@@ -12,8 +12,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const resolvedParams = await params;
 
     try {
-        const [products, categories] = await Promise.all([getProducts(), getCategories()]);
-        const product = products.find((p) => p.slug === resolvedParams.slug);
+        const [product, categories] = await Promise.all([
+            getProductBySlug(resolvedParams.slug),
+            getCategories(),
+        ]);
 
         if (!product) {
             return {
@@ -30,6 +32,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
         const category = categories.find(c => String(c.id) === String(product.category_id));
         const description = product.description || `${product.name} — handmade luxury knitwear by Ole Knitwear. Crafted from premium wool with free worldwide shipping.`;
+
+        const isOnSale = product.is_sale && product.sale_price_usd;
+        const price = isOnSale ? product.sale_price_usd : product.price_usd;
 
         return {
             title: product.name,
@@ -48,7 +53,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
                 title: `${product.name} | Ole Knitwear`,
                 description,
                 url: productUrl,
-                type: 'website',
+                type: 'article',
                 images: productImages.map((img, index) => ({
                     url: img,
                     width: 800,
@@ -62,6 +67,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
                 title: `${product.name} | Ole Knitwear`,
                 description,
                 images: productImages[0] ? [productImages[0]] : [],
+            },
+            other: {
+                'product:price:amount': String(price ?? 0),
+                'product:price:currency': 'USD',
+                'product:availability': product.is_in_stock ? 'in stock' : product.is_pre_order ? 'preorder' : 'out of stock',
+                'product:brand': 'Ole Knitwear',
+                'product:condition': 'new',
             },
         };
     } catch {

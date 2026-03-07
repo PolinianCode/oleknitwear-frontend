@@ -1,8 +1,40 @@
+import Link from 'next/link';
 import Breadcrumbs from '@/components/Breadcrumbs';
+
+const siteUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://ole-knitwear.com';
+
+const howToJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "How to Care for Hand-Knitted Knitwear",
+    "description": "Learn how to wash, dry, and store your handmade wool garments to keep them beautiful for years.",
+    "url": `${siteUrl}/care`,
+    "step": [
+        {
+            "@type": "HowToStep",
+            "name": "Wash With Intention",
+            "text": "Fill a bowl with cool water and add delicate wool wash. Submerge your knit gently, without rush. Let it rest. Do not scrub, twist, or squeeze.",
+        },
+        {
+            "@type": "HowToStep",
+            "name": "Rinse Like a Whisper",
+            "text": "Lift your piece with both hands, supporting its weight. Rinse with cool water until clean. Press out excess moisture with a towel gently.",
+        },
+        {
+            "@type": "HowToStep",
+            "name": "Dry in Its Natural Rhythm",
+            "text": "Lay your garment flat on a dry towel and allow it to reshape itself. Keep away from direct heat and sunlight.",
+        },
+    ],
+};
 
 export default function CareGuide() {
     return (
         <main className="bg-stone-50 min-h-screen py-20 md:py-32">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(howToJsonLd) }}
+            />
             <div className="container mx-auto px-4 max-w-3xl">
                 <Breadcrumbs className="mb-8 flex items-center justify-center" />
 
@@ -73,9 +105,15 @@ export default function CareGuide() {
                         <p className="font-serif text-2xl text-stone-800 mb-4 italic">
                             Honor the Yarn
                         </p>
-                        <p className="text-stone-500 font-sans text-sm max-w-md mx-auto leading-relaxed">
+                        <p className="text-stone-500 font-sans text-sm max-w-md mx-auto leading-relaxed mb-6">
                             Each cardigan carries the warmth of the hands that made it. When you care for it thoughtfully, it becomes a companion, aging gracefully by your side.
                         </p>
+                        <Link
+                            href="/shop"
+                            className="text-[10px] font-bold uppercase tracking-[0.2em] border-b border-brand text-brand pb-1 hover:opacity-70 transition-opacity"
+                        >
+                            Shop Our Collection
+                        </Link>
                     </footer>
 
                 </div>
