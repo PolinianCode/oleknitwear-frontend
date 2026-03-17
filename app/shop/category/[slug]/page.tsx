@@ -5,6 +5,14 @@ import ShopClient from "../../ShopClient";
 
 const siteUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://ole-knitwear.com";
 
+interface CategorySearchParams {
+  page?: string;
+  is_new?: string;
+  is_sale?: string;
+  is_in_stock?: string;
+  is_pre_order?: string;
+}
+
 export async function generateStaticParams() {
   const categories = await getCategories();
   return categories.map((c) => ({ slug: c.slug }));
@@ -12,18 +20,37 @@ export async function generateStaticParams() {
 
 export const revalidate = 3600;
 
-export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
-  const [products, categories, { slug }] = await Promise.all([
-    getProducts(),
+export default async function CategoryPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<CategorySearchParams>;
+}) {
+  const [categories, { slug }, sp] = await Promise.all([
     getCategories(),
     params,
+    searchParams,
   ]);
 
-  const category = categories.find(c => c.slug === slug);
+  const page = Math.max(1, Number(sp.page) || 1);
+  const isNew = sp.is_new === "true";
+  const isSale = sp.is_sale === "true";
+  const isInStock = sp.is_in_stock === "true";
+  const isPreOrder = sp.is_pre_order === "true";
 
-  const categoryProducts = category
-    ? products.filter(p => String(p.category_id) === String(category.id))
-    : [];
+  const category = categories.find(c => c.slug === slug);
+  const categoryId = category ? Number(category.id) : undefined;
+
+  const { data: products, meta } = await getProducts({
+    page,
+    limit: 10,
+    categoryId,
+    isNew: isNew || undefined,
+    isSale: isSale || undefined,
+    isInStock: isInStock || undefined,
+    isPreOrder: isPreOrder || undefined,
+  });
 
   const itemListJsonLd = category ? {
     "@context": "https://schema.org",
@@ -33,10 +60,10 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
     "description": category.description || `Browse our handcrafted ${category.name.toLowerCase()} collection.`,
     "mainEntity": {
       "@type": "ItemList",
-      "numberOfItems": categoryProducts.length,
-      "itemListElement": categoryProducts.map((product, index) => ({
+      "numberOfItems": meta.total,
+      "itemListElement": products.map((product, index) => ({
         "@type": "ListItem",
-        "position": index + 1,
+        "position": (page - 1) * 10 + index + 1,
         "url": `${siteUrl}/shop/${product.slug}`,
         "name": product.name,
       })),
@@ -64,7 +91,18 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
             {description}
           </p>
         )}
-        <ShopClient products={products} categories={categories} initialCategory={slug} />
+        <ShopClient
+          products={products}
+          categories={categories}
+          meta={meta}
+          currentFilters={{
+            category: slug,
+            isNew,
+            isSale,
+            isInStock,
+            isPreOrder,
+          }}
+        />
       </div>
     </main>
   );

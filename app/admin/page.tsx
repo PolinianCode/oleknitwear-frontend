@@ -1,18 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
-import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 import { useAuth } from "@/app/context/AuthContext";
 import Breadcrumbs from "@/components/Breadcrumbs";
-import { useProducts, useCategories, useUsers } from "@/lib/api";
+import { useAdminProducts, useCategories, useAdminUsers, useAdminOrders } from "@/lib/api/hooks";
 import {
-  Users, Package, Search, Tag, RefreshCw, Loader2,
+  Users, Package, Search, Tag, RefreshCw, Loader2, ShoppingBag,
 } from "lucide-react";
 
 const CustomersTable = dynamic(() => import("@/components/admin/CustomersTable").then(m => m.CustomersTable));
 const ProductsTab = dynamic(() => import("@/components/admin/ProductsTab").then(m => m.ProductsTab));
 const CategoriesTab = dynamic(() => import("@/components/admin/CategoriesTab").then(m => m.CategoriesTab));
+const OrdersTab = dynamic(() => import("@/components/admin/OrdersTab").then(m => m.OrdersTab));
 
 export default function AdminPage() {
   const { user, isLoading } = useAuth();
@@ -29,30 +30,43 @@ export default function AdminPage() {
   }
 
   if (!user || user.role !== "admin") {
-    notFound();
+    redirect("/login");
   }
 
   return <AdminContent />;
 }
 
-type Tab = "customers" | "products" | "categories";
+type Tab = "orders" | "customers" | "products" | "categories";
 
 function AdminContent() {
-  const [activeTab, setActiveTab] = useState<Tab>("products");
+  const [activeTab, setActiveTab] = useState<Tab>("orders");
   const [search, setSearch] = useState("");
+  const [productsPage, setProductsPage] = useState(1);
+  const [usersPage, setUsersPage] = useState(1);
+  const [ordersPage, setOrdersPage] = useState(1);
+  const [orderStatus, setOrderStatus] = useState("");
 
-  const { products, isLoading: loadingProducts, error: productsError, mutate: mutateProducts } = useProducts();
+  useEffect(() => {
+    setProductsPage(1);
+    setUsersPage(1);
+    setOrdersPage(1);
+  }, [search]);
+
+  const { products, meta: productsMeta, isLoading: loadingProducts, error: productsError, mutate: mutateProducts } = useAdminProducts(productsPage, search);
   const { categories, isLoading: loadingCategories, error: categoriesError, mutate: mutateCategories } = useCategories();
-  const { users, isLoading: loadingUsers, error: usersError, mutate: mutateUsers } = useUsers();
+  const { users, meta: usersMeta, isLoading: loadingUsers, error: usersError, mutate: mutateUsers } = useAdminUsers(usersPage, search);
+  const { orders, meta: ordersMeta, isLoading: loadingOrders, error: ordersError, mutate: mutateOrders } = useAdminOrders(ordersPage, search, orderStatus || undefined);
 
-  const isLoading = loadingProducts || loadingCategories || loadingUsers;
-  const apiError = productsError?.message || categoriesError?.message || usersError?.message || "";
+  const apiError = productsError?.message || categoriesError?.message || usersError?.message || ordersError?.message || "";
 
   const handleRefresh = () => {
     mutateProducts();
     mutateCategories();
     mutateUsers();
+    mutateOrders();
   };
+
+  const isLoading = loadingProducts || loadingCategories || loadingUsers || loadingOrders;
 
   return (
     <main className="bg-stone-50 min-h-screen pt-32 pb-20 font-sans">
@@ -77,9 +91,10 @@ function AdminContent() {
           <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6">
             <div className="flex gap-0 border-b border-stone-200 sm:border-0 overflow-x-auto flex-nowrap">
               {([
-                { key: "products" as Tab, label: "Products", icon: <Package size={15} />, count: products.length },
+                { key: "orders" as Tab, label: "Orders", icon: <ShoppingBag size={15} />, count: ordersMeta.total },
+                { key: "products" as Tab, label: "Products", icon: <Package size={15} />, count: productsMeta.total },
                 { key: "categories" as Tab, label: "Categories", icon: <Tag size={15} />, count: categories.length },
-                { key: "customers" as Tab, label: "Customers", icon: <Users size={15} />, count: users.length },
+                { key: "customers" as Tab, label: "Customers", icon: <Users size={15} />, count: usersMeta.total },
               ]).map((tab, i, arr) => (
                 <button
                   key={tab.key}
@@ -117,20 +132,54 @@ function AdminContent() {
             </div>
           )}
 
-          {activeTab === "customers" ? (
-            <CustomersTable search={search} users={users} loading={loadingUsers} />
-          ) : activeTab === "categories" ? (
+          {activeTab === "orders" && (
+            <div className="space-y-4">
+              <div className="flex gap-2 flex-wrap">
+                {["", "pending", "processing", "paid", "shipped", "delivered", "cancelled"].map(s => (
+                  <button
+                    key={s}
+                    onClick={() => { setOrderStatus(s); setOrdersPage(1); }}
+                    className={`text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full transition-colors ${orderStatus === s ? "bg-stone-900 text-white" : "bg-white border border-stone-200 text-stone-500 hover:text-stone-900"}`}
+                  >
+                    {s || "All"}
+                  </button>
+                ))}
+              </div>
+              <OrdersTab
+                orders={orders}
+                loading={loadingOrders}
+                page={ordersPage}
+                totalPages={ordersMeta.totalPages}
+                onPageChange={setOrdersPage}
+                mutate={mutateOrders}
+              />
+            </div>
+          )}
+          {activeTab === "customers" && (
+            <CustomersTable
+              search={search}
+              users={users}
+              loading={loadingUsers}
+              page={usersPage}
+              totalPages={usersMeta.totalPages}
+              onPageChange={setUsersPage}
+            />
+          )}
+          {activeTab === "categories" && (
             <CategoriesTab
               search={search}
               categories={categories}
               loading={loadingCategories}
             />
-          ) : (
+          )}
+          {activeTab === "products" && (
             <ProductsTab
-              search={search}
               products={products}
               categories={categories}
               loading={loadingProducts}
+              page={productsPage}
+              totalPages={productsMeta.totalPages}
+              onPageChange={setProductsPage}
             />
           )}
         </div>

@@ -13,7 +13,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     let latestProductUpdate = new Date();
 
     try {
-        const [products, categories] = await Promise.all([getProducts(), getCategories()]);
+        const [{ data: products }, categories] = await Promise.all([getProducts({ limit: 200 }), getCategories()]);
 
         if (products.length > 0) {
             latestProductUpdate = new Date(

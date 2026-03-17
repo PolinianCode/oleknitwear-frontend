@@ -1,2 +1,2 @@
 export { fetchApi, ApiError, BASE_URL } from "./api/client";
-export { useProducts, useCategories, useUsers } from "./api/hooks";
+export { useAdminProducts, useCategories, useAdminUsers } from "./api/hooks";

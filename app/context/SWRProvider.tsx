@@ -4,7 +4,7 @@ import { SWRConfig } from "swr";
 
 export function SWRProvider({ children }: { children: React.ReactNode }) {
     return (
-        <SWRConfig value={{ dedupingInterval: 10000 }}>
+        <SWRConfig value={{ dedupingInterval: 10000, revalidateOnFocus: false }}>
             {children}
         </SWRConfig>
     );

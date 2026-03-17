@@ -2,7 +2,7 @@ import Advantages from "@/components/Advantages"
 import FeaturedCollection from "@/components/FeaturedCollection"
 import HeroSlider from "@/components/HeroSlider"
 import OurHistory from "@/components/OurHistory"
-import { getProducts } from "@/lib/api/products"
+import { getFeaturedProducts } from "@/lib/api/products"
 import { getCategories } from "@/lib/api/categories"
 
 const slides = [
@@ -29,12 +29,12 @@ const slides = [
 ]
 
 export default async function Home() {
-  let products: Awaited<ReturnType<typeof getProducts>> = [];
+  let products: import("@/lib/api/types").ApiProduct[] = [];
   let categories: Awaited<ReturnType<typeof getCategories>> = [];
 
   try {
     [products, categories] = await Promise.all([
-      getProducts(),
+      getFeaturedProducts(),
       getCategories(),
     ]);
   } catch {

@@ -9,28 +9,26 @@ import { Pagination } from "@/components/Pagination";
 import { formatDate } from "./utils";
 import { getProduct } from "@/lib/api/products";
 
-const PER_PAGE = 10;
-
 interface ProductsTabProps {
-    search: string;
     products: ApiProduct[];
     categories: ApiCategory[];
     loading: boolean;
+    page: number;
+    totalPages: number;
+    onPageChange: (page: number) => void;
 }
 
-export function ProductsTab({ search, products, categories, loading }: ProductsTabProps) {
+export function ProductsTab({ products, categories, loading, page, totalPages, onPageChange }: ProductsTabProps) {
     const [sortKey, setSortKey] = useState<"name" | "price_uah" | "category_id" | "created_at">("created_at");
     const [sortDir, setSortDir] = useState<SortDir>("desc");
     const [modalProduct, setModalProduct] = useState<ApiProduct | null>(null);
     const [showAddModal, setShowAddModal] = useState(false);
     const [deleteTarget, setDeleteTarget] = useState<ApiProduct | null>(null);
-    const [page, setPage] = useState(1);
     const [loadingProductId, setLoadingProductId] = useState<string | null>(null);
 
     const toggleSort = (key: typeof sortKey) => {
         if (sortKey === key) setSortDir(sortDir === "asc" ? "desc" : "asc");
         else { setSortKey(key); setSortDir("asc"); }
-        setPage(1);
     };
 
     const getCategoryName = (categoryId: number) => {
@@ -38,19 +36,14 @@ export function ProductsTab({ search, products, categories, loading }: ProductsT
         return cat?.name || "—";
     };
 
-    const filtered = products
-        .filter((p) => p.name.toLowerCase().includes(search.toLowerCase()))
-        .sort((a, b) => {
-            const mul = sortDir === "asc" ? 1 : -1;
-            if (sortKey === "name") return mul * a.name.localeCompare(b.name);
-            if (sortKey === "price_uah") return mul * (a.price_uah - b.price_uah);
-            if (sortKey === "category_id") return mul * getCategoryName(a.category_id).localeCompare(getCategoryName(b.category_id));
-            return mul * (new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
-        });
-
-    const totalPages = Math.ceil(filtered.length / PER_PAGE);
-    const safePage = Math.min(page, totalPages || 1);
-    const paginated = filtered.slice((safePage - 1) * PER_PAGE, safePage * PER_PAGE);
+    // Sort happens client-side on the current server page (10 items)
+    const sorted = [...products].sort((a, b) => {
+        const mul = sortDir === "asc" ? 1 : -1;
+        if (sortKey === "name") return mul * a.name.localeCompare(b.name);
+        if (sortKey === "price_uah") return mul * (a.price_uah - b.price_uah);
+        if (sortKey === "category_id") return mul * getCategoryName(a.category_id).localeCompare(getCategoryName(b.category_id));
+        return mul * (new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+    });
 
     const handleEdit = async (product: ApiProduct) => {
         setLoadingProductId(product.id);
@@ -109,7 +102,7 @@ export function ProductsTab({ search, products, categories, loading }: ProductsT
                         </tr>
                     </thead>
                     <tbody>
-                        {paginated.map((product) => {
+                        {sorted.map((product) => {
                             const img = product.product_images?.[0]?.url;
                             const meta = product.metadata ? Object.entries(product.metadata) : [];
                             return (
@@ -187,14 +180,14 @@ export function ProductsTab({ search, products, categories, loading }: ProductsT
                                 </tr>
                             );
                         })}
-                        {filtered.length === 0 && (
+                        {sorted.length === 0 && (
                             <tr><td colSpan={6} className="text-center py-20 font-serif italic text-stone-300 text-lg">No products found.</td></tr>
                         )}
                     </tbody>
                 </table>
             </div>
 
-            <Pagination currentPage={safePage} totalPages={totalPages} onPageChange={setPage} />
+            <Pagination currentPage={page} totalPages={totalPages} onPageChange={onPageChange} />
 
             {showAddModal && <ProductModal categories={categories} onClose={() => setShowAddModal(false)} onSaved={handleSaved} />}
             {modalProduct && <ProductModal product={modalProduct} categories={categories} onClose={() => setModalProduct(null)} onSaved={handleSaved} />}

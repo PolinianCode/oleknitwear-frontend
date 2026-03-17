@@ -110,6 +110,63 @@ export interface ApiResponse<T> {
     data: T;
 }
 
+export interface ApiPaginationMeta {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+}
+
+export interface ApiPaginatedResponse<T> {
+    success: boolean;
+    data: T;
+    meta: ApiPaginationMeta;
+}
+
+export type OrderStatus = 'pending' | 'processing' | 'paid' | 'shipped' | 'delivered' | 'cancelled' | 'refunded';
+export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded';
+
+export interface ApiOrderItem {
+    id: string;
+    product_id: string | null;
+    product_name: string;
+    product_slug: string;
+    product_image: string | null;
+    unit_price: number;
+    quantity: number;
+    total_price: number;
+    created_at: string;
+}
+
+export interface ApiOrder {
+    id: string;
+    user_id: string | null;
+    order_number: string;
+    status: OrderStatus;
+    customer_email: string;
+    customer_name: string;
+    customer_phone: string | null;
+    shipping_country: string;
+    shipping_city: string;
+    shipping_street: string;
+    shipping_apartment: string | null;
+    shipping_postal_code: string;
+    payment_method: string;
+    payment_status: PaymentStatus;
+    currency: string;
+    subtotal: number;
+    total: number;
+    notes: string | null;
+    items: ApiOrderItem[];
+    created_at: string;
+    updated_at: string;
+}
+
+export interface PaymentFormData {
+    wayforpayUrl: string;
+    fields: Record<string, string | string[]>;
+}
+
 export interface AuthLoginResponse {
     success: boolean;
     user: { email: string; role: "admin" | "customer"; full_name?: string };

@@ -5,7 +5,7 @@ export const SWR_KEY_CATEGORIES = "/api/categories";
 
 async function invalidateCategories() {
     const { mutate } = await import("swr");
-    await mutate(SWR_KEY_CATEGORIES);
+    await mutate((key: unknown) => typeof key === "string" && key.startsWith(SWR_KEY_CATEGORIES));
 }
 
 export async function getCategories(signal?: AbortSignal): Promise<ApiCategory[]> {

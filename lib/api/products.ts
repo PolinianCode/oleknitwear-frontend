@@ -1,19 +1,44 @@
 import { fetchApi } from "./client";
-import type { ApiProduct, ApiResponse, CreateProductPayload, UpdateProductPayload } from "./types";
+import type { ApiProduct, ApiPaginatedResponse, ApiPaginationMeta, ApiResponse, CreateProductPayload, UpdateProductPayload } from "./types";
 
 export const SWR_KEY_PRODUCTS = "/api/products";
 
 async function invalidateProducts() {
     const { mutate } = await import("swr");
-    await mutate(SWR_KEY_PRODUCTS);
+    // Invalidate base key and all paginated/filtered keys
+    await mutate((key: unknown) => typeof key === "string" && key.startsWith(SWR_KEY_PRODUCTS));
 }
 
-export async function getProducts(signal?: AbortSignal, categoryId?: number): Promise<ApiProduct[]> {
-    const params = new URLSearchParams();
-    if (categoryId) params.set("category_id", String(categoryId));
-    const query = params.toString();
-    const url = query ? `/api/products?${query}` : "/api/products";
-    const res = await fetchApi<ApiResponse<ApiProduct[]>>(url, { signal });
+export interface GetProductsParams {
+    page?: number;
+    limit?: number;
+    categoryId?: number;
+    search?: string;
+    isNew?: boolean;
+    isSale?: boolean;
+    isInStock?: boolean;
+    isPreOrder?: boolean;
+    signal?: AbortSignal;
+}
+
+export async function getProducts(params?: GetProductsParams): Promise<{ data: ApiProduct[]; meta: ApiPaginationMeta }> {
+    const query = new URLSearchParams();
+    if (params?.page && params.page > 1) query.set("page", String(params.page));
+    if (params?.limit) query.set("limit", String(params.limit));
+    if (params?.categoryId) query.set("category_id", String(params.categoryId));
+    if (params?.search) query.set("search", params.search);
+    if (params?.isNew) query.set("is_new", "true");
+    if (params?.isSale) query.set("is_sale", "true");
+    if (params?.isInStock) query.set("is_in_stock", "true");
+    if (params?.isPreOrder) query.set("is_pre_order", "true");
+    const qs = query.toString();
+    const url = qs ? `/api/products?${qs}` : "/api/products";
+    const res = await fetchApi<ApiPaginatedResponse<ApiProduct[]>>(url, { signal: params?.signal });
+    return { data: res.data, meta: res.meta };
+}
+
+export async function getFeaturedProducts(): Promise<ApiProduct[]> {
+    const res = await fetchApi<ApiResponse<ApiProduct[]>>("/api/products/featured");
     return res.data;
 }
 
