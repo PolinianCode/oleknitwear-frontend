@@ -2,14 +2,22 @@ import useSWR from "swr";
 import { getProducts, SWR_KEY_PRODUCTS } from "./products";
 import { getCategories, SWR_KEY_CATEGORIES } from "./categories";
 import { getUsers, SWR_KEY_USERS } from "./users";
-import type { ApiProduct, ApiCategory, ApiUser } from "./types";
+import { getAdminOrders, SWR_KEY_ORDERS } from "./orders";
+import type { ApiCategory } from "./types";
 
-export function useProducts() {
-    const { data, error, isLoading, mutate } = useSWR<ApiProduct[]>(
-        SWR_KEY_PRODUCTS,
-        () => getProducts()
+export function useAdminProducts(page: number, search: string) {
+    const key = `${SWR_KEY_PRODUCTS}?page=${page}&limit=10${search ? `&search=${encodeURIComponent(search)}` : ""}`;
+    const { data, error, isLoading, mutate } = useSWR(
+        key,
+        () => getProducts({ page, limit: 10, search: search || undefined })
     );
-    return { products: data ?? [], error, isLoading, mutate };
+    return {
+        products: data?.data ?? [],
+        meta: data?.meta ?? { page, limit: 10, total: 0, totalPages: 0 },
+        error,
+        isLoading,
+        mutate,
+    };
 }
 
 export function useCategories() {
@@ -20,10 +28,32 @@ export function useCategories() {
     return { categories: data ?? [], error, isLoading, mutate };
 }
 
-export function useUsers() {
-    const { data, error, isLoading, mutate } = useSWR<ApiUser[]>(
-        SWR_KEY_USERS,
-        () => getUsers()
+export function useAdminUsers(page: number, search: string) {
+    const key = `${SWR_KEY_USERS}?page=${page}&limit=10${search ? `&search=${encodeURIComponent(search)}` : ""}`;
+    const { data, error, isLoading, mutate } = useSWR(
+        key,
+        () => getUsers({ page, limit: 10, search: search || undefined })
     );
-    return { users: data ?? [], error, isLoading, mutate };
+    return {
+        users: data?.data ?? [],
+        meta: data?.meta ?? { page, limit: 10, total: 0, totalPages: 0 },
+        error,
+        isLoading,
+        mutate,
+    };
+}
+
+export function useAdminOrders(page: number, search: string, status?: string) {
+    const key = `${SWR_KEY_ORDERS}?page=${page}&limit=20${search ? `&search=${encodeURIComponent(search)}` : ""}${status ? `&status=${status}` : ""}`;
+    const { data, error, isLoading, mutate } = useSWR(
+        key,
+        () => getAdminOrders({ page, limit: 20, search: search || undefined, status: status || undefined })
+    );
+    return {
+        orders: data?.data ?? [],
+        meta: data?.meta ?? { page, limit: 20, total: 0, totalPages: 0 },
+        error,
+        isLoading,
+        mutate,
+    };
 }

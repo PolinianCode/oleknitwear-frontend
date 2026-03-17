@@ -1,23 +1,26 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useProducts, useCategories } from "@/lib/api/hooks";
+import { useCategories } from "@/lib/api/hooks";
+import { getProductBySlug } from "@/lib/api/products";
 import type { ApiProduct } from "@/lib/api/types";
 import ProductCard from "./ProductCard";
 
 export default function RecentlyViewed({ currentProductSlug }: { currentProductSlug?: string }) {
-    const { products } = useProducts();
     const { categories } = useCategories();
     const [viewedProducts, setViewedProducts] = useState<ApiProduct[]>([]);
 
     useEffect(() => {
-        if (products.length === 0) return;
         const slugs: string[] = JSON.parse(localStorage.getItem("recently_viewed") || "[]");
-        const filteredSlugs = slugs.filter((slug) => slug !== currentProductSlug);
-        const foundProducts = filteredSlugs
-            .map((slug) => products.find(p => p.slug === slug))
-            .filter((p): p is ApiProduct => !!p);
-        setViewedProducts(foundProducts);
-    }, [currentProductSlug, products]);
+        const filtered = slugs.filter((s) => s !== currentProductSlug).slice(0, 4);
+        if (filtered.length === 0) return;
+
+        Promise.allSettled(filtered.map((slug) => getProductBySlug(slug))).then((results) => {
+            const found = results
+                .filter((r): r is PromiseFulfilledResult<ApiProduct> => r.status === "fulfilled")
+                .map((r) => r.value);
+            setViewedProducts(found);
+        });
+    }, [currentProductSlug]);
 
     if (viewedProducts.length === 0) return null;
 

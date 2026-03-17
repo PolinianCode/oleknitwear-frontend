@@ -1,203 +1,177 @@
 "use client";
 
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import ProductCard from "@/components/products/ProductCard";
 import { SlidersHorizontal, X } from "lucide-react";
 import { Pagination } from "@/components/Pagination";
-import type { ApiProduct, ApiCategory } from "@/lib/api/types";
-
-const PER_PAGE = 9;
+import type { ApiProduct, ApiCategory, ApiPaginationMeta } from "@/lib/api/types";
 
 const FilterLabel = ({ title }: { title: string }) => (
   <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] mb-4 text-stone-900">{title}</h3>
 );
 
+interface CurrentFilters {
+  category: string;
+  isNew: boolean;
+  isSale: boolean;
+  isInStock: boolean;
+  isPreOrder: boolean;
+}
+
 interface ShopClientProps {
   products: ApiProduct[];
   categories: ApiCategory[];
-  initialCategory?: string;
+  meta: ApiPaginationMeta;
+  currentFilters: CurrentFilters;
 }
 
-export default function ShopClient({ products, categories, initialCategory }: ShopClientProps) {
-  const [activeCategory, setActiveCategory] = useState<string>(initialCategory || "all");
-  const [showNew, setShowNew] = useState(false);
-  const [showSale, setShowSale] = useState(false);
-  const [showInStock, setShowInStock] = useState(false);
-  const [showPreOrder, setShowPreOrder] = useState(false);
+function buildShopUrl(filters: CurrentFilters, page: number): string {
+  const params = new URLSearchParams();
+  if (filters.category !== "all") params.set("cat", filters.category);
+  if (page > 1) params.set("page", String(page));
+  if (filters.isNew) params.set("is_new", "true");
+  if (filters.isSale) params.set("is_sale", "true");
+  if (filters.isInStock) params.set("is_in_stock", "true");
+  if (filters.isPreOrder) params.set("is_pre_order", "true");
+  const qs = params.toString();
+  return qs ? `/shop?${qs}` : "/shop";
+}
+
+export default function ShopClient({ products, categories, meta, currentFilters }: ShopClientProps) {
+  const router = useRouter();
   const [isFilterMobileOpen, setIsFilterMobileOpen] = useState(false);
-  const [page, setPage] = useState(1);
+  const [pendingFilters, setPendingFilters] = useState<CurrentFilters>(currentFilters);
 
-  useEffect(() => {
-    if (initialCategory && categories.length > 0) {
-      const match = categories.find(c => c.slug === initialCategory);
-      if (match) {
-        setActiveCategory(match.slug);
-      }
-    }
-  }, [initialCategory, categories]);
+  const { category: activeCategory, isNew: showNew, isSale: showSale, isInStock: showInStock, isPreOrder: showPreOrder } = currentFilters;
 
-  const filteredProducts = useMemo(() => {
-    let result = products;
+  const navigate = (filters: CurrentFilters, page = 1) => {
+    router.push(buildShopUrl(filters, page));
+  };
 
-    if (activeCategory !== "all") {
-      const cat = categories.find(c => c.slug === activeCategory);
-      if (cat) {
-        result = result.filter((p) => String(p.category_id) === String(cat.id));
-      }
-    }
-
-    if (showNew) {
-      result = result.filter(p => p.is_new);
-    }
-
-    if (showSale) {
-      result = result.filter(p => p.is_sale);
-    }
-
-    if (showInStock) {
-      result = result.filter(p => p.is_in_stock);
-    }
-
-    if (showPreOrder) {
-      result = result.filter(p => p.is_pre_order);
-    }
-
-    return result;
-  }, [activeCategory, showNew, showSale, showInStock, showPreOrder, products, categories]);
-
-  useEffect(() => {
-    setPage(1);
-  }, [activeCategory, showNew, showSale, showInStock, showPreOrder]);
-
-  const totalPages = Math.ceil(filteredProducts.length / PER_PAGE);
-  const safePage = Math.min(page, totalPages || 1);
-  const paginatedProducts = filteredProducts.slice((safePage - 1) * PER_PAGE, safePage * PER_PAGE);
-
-  const handlePageChange = useCallback((newPage: number) => {
-    setPage(newPage);
+  const handlePageChange = (page: number) => {
     window.scrollTo({ top: 0, behavior: "smooth" });
-  }, []);
+    navigate(currentFilters, page);
+  };
+
+  const openMobilePanel = () => {
+    setPendingFilters(currentFilters);
+    setIsFilterMobileOpen(true);
+  };
+
+  const applyMobileFilters = () => {
+    navigate(pendingFilters, 1);
+    setIsFilterMobileOpen(false);
+  };
+
+  const clearAllFilters: CurrentFilters = { category: "all", isNew: false, isSale: false, isInStock: false, isPreOrder: false };
 
   return (
     <div className="flex-1">
-        <div className="flex flex-col lg:flex-row gap-12">
+      <div className="flex flex-col lg:flex-row gap-12">
 
-          <aside className="hidden lg:block w-64 space-y-12 animate-fade-in">
+        <aside className="hidden lg:block w-64 space-y-12 animate-fade-in">
 
-            <div>
-              <FilterLabel title="Category" />
-              <div className="flex flex-col gap-3">
+          <div>
+            <FilterLabel title="Category" />
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={() => navigate({ ...currentFilters, category: "all" })}
+                className={`text-left text-sm transition-colors cursor-pointer ${activeCategory === "all" ? "text-brand font-medium" : "text-stone-500 hover:text-stone-900"}`}
+              >
+                All
+              </button>
+              {categories.map(cat => (
                 <button
-                  onClick={() => setActiveCategory("all")}
-                  className={`text-left text-sm transition-colors cursor-pointer ${activeCategory === "all" ? "text-brand font-medium" : "text-stone-500 hover:text-stone-900"}`}
+                  key={cat.id}
+                  onClick={() => navigate({ ...currentFilters, category: cat.slug })}
+                  className={`text-left text-sm transition-colors cursor-pointer ${activeCategory === cat.slug ? "text-brand font-medium" : "text-stone-500 hover:text-stone-900"}`}
                 >
-                  All
+                  {cat.name}
                 </button>
-                {categories.map(cat => (
-                  <button
-                    key={cat.id}
-                    onClick={() => setActiveCategory(cat.slug)}
-                    className={`text-left text-sm transition-colors cursor-pointer ${activeCategory === cat.slug ? "text-brand font-medium" : "text-stone-500 hover:text-stone-900"}`}
-                  >
-                    {cat.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <FilterLabel title="Collection" />
-              <div className="flex flex-col gap-3">
-                <button
-                  onClick={() => setShowNew(!showNew)}
-                  className={`text-left text-sm transition-colors cursor-pointer flex items-center justify-between group ${showNew ? "text-brand font-medium" : "text-stone-500 hover:text-stone-900"}`}
-                >
-                  New Arrivals
-                  <div className={`w-3.5 h-3.5 border rounded-sm flex items-center justify-center transition-colors ${showNew ? "bg-brand border-brand" : "border-stone-300 group-hover:border-stone-400"}`}>
-                    {showNew && <div className="w-1.5 h-1.5 bg-white rounded-full" />}
-                  </div>
-                </button>
-                <button
-                  onClick={() => setShowSale(!showSale)}
-                  className={`text-left text-sm transition-colors cursor-pointer flex items-center justify-between group ${showSale ? "text-brand font-medium" : "text-stone-500 hover:text-stone-900"}`}
-                >
-                  On Sale
-                  <div className={`w-3.5 h-3.5 border rounded-sm flex items-center justify-center transition-colors ${showSale ? "bg-brand border-brand" : "border-stone-300 group-hover:border-stone-400"}`}>
-                    {showSale && <div className="w-1.5 h-1.5 bg-white rounded-full" />}
-                  </div>
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <FilterLabel title="Availability" />
-              <div className="flex flex-col gap-3">
-                <button
-                  onClick={() => {
-                    const newVal = !showInStock;
-                    setShowInStock(newVal);
-                    if (newVal) setShowPreOrder(false);
-                  }}
-                  className={`text-left text-sm transition-colors cursor-pointer flex items-center justify-between group ${showInStock ? "text-brand font-medium" : "text-stone-500 hover:text-stone-900"}`}
-                >
-                  In Stock
-                  <div className={`w-3.5 h-3.5 border rounded-sm flex items-center justify-center transition-colors ${showInStock ? "bg-brand border-brand" : "border-stone-300 group-hover:border-stone-400"}`}>
-                    {showInStock && <div className="w-1.5 h-1.5 bg-white rounded-full" />}
-                  </div>
-                </button>
-                <button
-                  onClick={() => {
-                    const newVal = !showPreOrder;
-                    setShowPreOrder(newVal);
-                    if (newVal) setShowInStock(false);
-                  }}
-                  className={`text-left text-sm transition-colors cursor-pointer flex items-center justify-between group ${showPreOrder ? "text-brand font-medium" : "text-stone-500 hover:text-stone-900"}`}
-                >
-                  Pre-Order
-                  <div className={`w-3.5 h-3.5 border rounded-sm flex items-center justify-center transition-colors ${showPreOrder ? "bg-brand border-brand" : "border-stone-300 group-hover:border-stone-400"}`}>
-                    {showPreOrder && <div className="w-1.5 h-1.5 bg-white rounded-full" />}
-                  </div>
-                </button>
-              </div>
-            </div>
-
-            <button
-              onClick={() => {
-                setActiveCategory("all");
-                setShowNew(false);
-                setShowSale(false);
-                setShowInStock(false);
-                setShowPreOrder(false);
-              }}
-              className="text-[9px] uppercase tracking-widest text-stone-400 hover:text-brand border-b border-stone-200 pb-1 transition-colors cursor-pointer"
-            >
-              Clear all filters
-            </button>
-          </aside>
-
-          <div className="flex-1">
-            <button
-              onClick={() => setIsFilterMobileOpen(true)}
-              className="lg:hidden flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest mb-8 py-2 px-4 border border-stone-200 rounded-full cursor-pointer"
-            >
-              <SlidersHorizontal size={14} /> Filter & Sort
-            </button>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-16">
-              {paginatedProducts.map(product => (
-                <ProductCard key={product.id} product={product} categories={categories} />
               ))}
             </div>
-
-            {filteredProducts.length === 0 && (
-              <div className="text-center py-20 font-serif italic text-stone-400 text-xl">
-                No items match your selection.
-              </div>
-            )}
-
-            <Pagination currentPage={safePage} totalPages={totalPages} onPageChange={handlePageChange} />
           </div>
+
+          <div>
+            <FilterLabel title="Collection" />
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={() => navigate({ ...currentFilters, isNew: !showNew })}
+                className={`text-left text-sm transition-colors cursor-pointer flex items-center justify-between group ${showNew ? "text-brand font-medium" : "text-stone-500 hover:text-stone-900"}`}
+              >
+                New Arrivals
+                <div className={`w-3.5 h-3.5 border rounded-sm flex items-center justify-center transition-colors ${showNew ? "bg-brand border-brand" : "border-stone-300 group-hover:border-stone-400"}`}>
+                  {showNew && <div className="w-1.5 h-1.5 bg-white rounded-full" />}
+                </div>
+              </button>
+              <button
+                onClick={() => navigate({ ...currentFilters, isSale: !showSale })}
+                className={`text-left text-sm transition-colors cursor-pointer flex items-center justify-between group ${showSale ? "text-brand font-medium" : "text-stone-500 hover:text-stone-900"}`}
+              >
+                On Sale
+                <div className={`w-3.5 h-3.5 border rounded-sm flex items-center justify-center transition-colors ${showSale ? "bg-brand border-brand" : "border-stone-300 group-hover:border-stone-400"}`}>
+                  {showSale && <div className="w-1.5 h-1.5 bg-white rounded-full" />}
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <FilterLabel title="Availability" />
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={() => navigate({ ...currentFilters, isInStock: !showInStock, isPreOrder: !showInStock ? false : showPreOrder })}
+                className={`text-left text-sm transition-colors cursor-pointer flex items-center justify-between group ${showInStock ? "text-brand font-medium" : "text-stone-500 hover:text-stone-900"}`}
+              >
+                In Stock
+                <div className={`w-3.5 h-3.5 border rounded-sm flex items-center justify-center transition-colors ${showInStock ? "bg-brand border-brand" : "border-stone-300 group-hover:border-stone-400"}`}>
+                  {showInStock && <div className="w-1.5 h-1.5 bg-white rounded-full" />}
+                </div>
+              </button>
+              <button
+                onClick={() => navigate({ ...currentFilters, isPreOrder: !showPreOrder, isInStock: !showPreOrder ? false : showInStock })}
+                className={`text-left text-sm transition-colors cursor-pointer flex items-center justify-between group ${showPreOrder ? "text-brand font-medium" : "text-stone-500 hover:text-stone-900"}`}
+              >
+                Pre-Order
+                <div className={`w-3.5 h-3.5 border rounded-sm flex items-center justify-center transition-colors ${showPreOrder ? "bg-brand border-brand" : "border-stone-300 group-hover:border-stone-400"}`}>
+                  {showPreOrder && <div className="w-1.5 h-1.5 bg-white rounded-full" />}
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <button
+            onClick={() => navigate(clearAllFilters)}
+            className="text-[9px] uppercase tracking-widest text-stone-400 hover:text-brand border-b border-stone-200 pb-1 transition-colors cursor-pointer"
+          >
+            Clear all filters
+          </button>
+        </aside>
+
+        <div className="flex-1">
+          <button
+            onClick={openMobilePanel}
+            className="lg:hidden flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest mb-8 py-2 px-4 border border-stone-200 rounded-full cursor-pointer"
+          >
+            <SlidersHorizontal size={14} /> Filter & Sort
+          </button>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-16">
+            {products.map(product => (
+              <ProductCard key={product.id} product={product} categories={categories} />
+            ))}
+          </div>
+
+          {products.length === 0 && (
+            <div className="text-center py-20 font-serif italic text-stone-400 text-xl">
+              No items match your selection.
+            </div>
+          )}
+
+          <Pagination currentPage={meta.page} totalPages={meta.totalPages} onPageChange={handlePageChange} />
         </div>
+      </div>
 
       {isFilterMobileOpen && (
         <div className="fixed inset-0 z-[100] bg-white overflow-y-auto animate-fadeIn flex flex-col">
@@ -217,8 +191,8 @@ export default function ShopClient({ products, categories, initialCategory }: Sh
               <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] mb-4 text-stone-400">Category</h3>
               <div className="flex flex-wrap gap-2">
                 <button
-                  onClick={() => setActiveCategory("all")}
-                  className={`px-4 py-2 text-xs font-sans rounded-full border transition-all ${activeCategory === "all"
+                  onClick={() => setPendingFilters(f => ({ ...f, category: "all" }))}
+                  className={`px-4 py-2 text-xs font-sans rounded-full border transition-all ${pendingFilters.category === "all"
                     ? "bg-stone-900 text-white border-stone-900"
                     : "bg-white text-stone-500 border-stone-200"
                     }`}
@@ -228,8 +202,8 @@ export default function ShopClient({ products, categories, initialCategory }: Sh
                 {categories.map(cat => (
                   <button
                     key={cat.id}
-                    onClick={() => setActiveCategory(cat.slug)}
-                    className={`px-4 py-2 text-xs font-sans rounded-full border transition-all ${activeCategory === cat.slug
+                    onClick={() => setPendingFilters(f => ({ ...f, category: cat.slug }))}
+                    className={`px-4 py-2 text-xs font-sans rounded-full border transition-all ${pendingFilters.category === cat.slug
                       ? "bg-stone-900 text-white border-stone-900"
                       : "bg-white text-stone-500 border-stone-200"
                       }`}
@@ -244,8 +218,8 @@ export default function ShopClient({ products, categories, initialCategory }: Sh
               <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] mb-4 text-stone-400">Collection</h3>
               <div className="flex flex-wrap gap-2">
                 <button
-                  onClick={() => setShowNew(!showNew)}
-                  className={`px-4 py-2 text-xs font-sans rounded-full border transition-all ${showNew
+                  onClick={() => setPendingFilters(f => ({ ...f, isNew: !f.isNew }))}
+                  className={`px-4 py-2 text-xs font-sans rounded-full border transition-all ${pendingFilters.isNew
                     ? "bg-brand text-white border-brand"
                     : "bg-white text-stone-500 border-stone-200"
                     }`}
@@ -253,8 +227,8 @@ export default function ShopClient({ products, categories, initialCategory }: Sh
                   New Arrivals
                 </button>
                 <button
-                  onClick={() => setShowSale(!showSale)}
-                  className={`px-4 py-2 text-xs font-sans rounded-full border transition-all ${showSale
+                  onClick={() => setPendingFilters(f => ({ ...f, isSale: !f.isSale }))}
+                  className={`px-4 py-2 text-xs font-sans rounded-full border transition-all ${pendingFilters.isSale
                     ? "bg-brand text-white border-brand"
                     : "bg-white text-stone-500 border-stone-200"
                     }`}
@@ -268,12 +242,8 @@ export default function ShopClient({ products, categories, initialCategory }: Sh
               <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] mb-4 text-stone-400">Availability</h3>
               <div className="flex flex-wrap gap-2">
                 <button
-                  onClick={() => {
-                    const newVal = !showInStock;
-                    setShowInStock(newVal);
-                    if (newVal) setShowPreOrder(false);
-                  }}
-                  className={`px-4 py-2 text-xs font-sans rounded-full border transition-all ${showInStock
+                  onClick={() => setPendingFilters(f => ({ ...f, isInStock: !f.isInStock, isPreOrder: !f.isInStock ? false : f.isPreOrder }))}
+                  className={`px-4 py-2 text-xs font-sans rounded-full border transition-all ${pendingFilters.isInStock
                     ? "bg-brand text-white border-brand"
                     : "bg-white text-stone-500 border-stone-200"
                     }`}
@@ -281,12 +251,8 @@ export default function ShopClient({ products, categories, initialCategory }: Sh
                   In Stock
                 </button>
                 <button
-                  onClick={() => {
-                    const newVal = !showPreOrder;
-                    setShowPreOrder(newVal);
-                    if (newVal) setShowInStock(false);
-                  }}
-                  className={`px-4 py-2 text-xs font-sans rounded-full border transition-all ${showPreOrder
+                  onClick={() => setPendingFilters(f => ({ ...f, isPreOrder: !f.isPreOrder, isInStock: !f.isPreOrder ? false : f.isInStock }))}
+                  className={`px-4 py-2 text-xs font-sans rounded-full border transition-all ${pendingFilters.isPreOrder
                     ? "bg-brand text-white border-brand"
                     : "bg-white text-stone-500 border-stone-200"
                     }`}
@@ -297,13 +263,7 @@ export default function ShopClient({ products, categories, initialCategory }: Sh
             </section>
 
             <button
-              onClick={() => {
-                setActiveCategory("all");
-                setShowNew(false);
-                setShowSale(false);
-                setShowInStock(false);
-                setShowPreOrder(false);
-              }}
+              onClick={() => setPendingFilters(clearAllFilters)}
               className="w-full text-[10px] uppercase tracking-widest text-brand font-bold py-4 border-t border-stone-100 mt-4"
             >
               Clear all filters
@@ -312,10 +272,10 @@ export default function ShopClient({ products, categories, initialCategory }: Sh
 
           <div className="fixed bottom-0 left-0 right-0 p-6 bg-white border-t border-stone-100">
             <button
-              onClick={() => setIsFilterMobileOpen(false)}
+              onClick={applyMobileFilters}
               className="w-full bg-brand text-white py-4 text-[10px] font-bold uppercase tracking-[0.2em] shadow-xl hover:brightness-110 active:scale-95 transition-all cursor-pointer"
             >
-              Show {filteredProducts.length} Results
+              Show {meta.total} Results
             </button>
           </div>
         </div>

@@ -5,39 +5,30 @@ import { Pagination } from "@/components/Pagination";
 import { formatDate } from "./utils";
 import { ApiUser } from "./types";
 
-const PER_PAGE = 10;
-
 interface CustomersTableProps {
     search: string;
     users: ApiUser[];
     loading: boolean;
+    page: number;
+    totalPages: number;
+    onPageChange: (page: number) => void;
 }
 
-export function CustomersTable({ search, users, loading }: CustomersTableProps) {
+export function CustomersTable({ search, users, loading, page, totalPages, onPageChange }: CustomersTableProps) {
     const [sortKey, setSortKey] = useState<"full_name" | "created_at">("created_at");
     const [sortDir, setSortDir] = useState<SortDir>("desc");
-    const [page, setPage] = useState(1);
 
     const toggleSort = (key: typeof sortKey) => {
         if (sortKey === key) setSortDir(sortDir === "asc" ? "desc" : "asc");
         else { setSortKey(key); setSortDir("asc"); }
-        setPage(1);
     };
 
-    const filtered = users
-        .filter((c) => {
-            const q = search.toLowerCase();
-            return c.full_name.toLowerCase().includes(q) || c.email.toLowerCase().includes(q);
-        })
-        .sort((a, b) => {
-            const mul = sortDir === "asc" ? 1 : -1;
-            if (sortKey === "full_name") return mul * a.full_name.localeCompare(b.full_name);
-            return mul * (new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
-        });
-
-    const totalPages = Math.ceil(filtered.length / PER_PAGE);
-    const safePage = Math.min(page, totalPages || 1);
-    const paginated = filtered.slice((safePage - 1) * PER_PAGE, safePage * PER_PAGE);
+    // Sort client-side on the current server page (10 items)
+    const sorted = [...users].sort((a, b) => {
+        const mul = sortDir === "asc" ? 1 : -1;
+        if (sortKey === "full_name") return mul * a.full_name.localeCompare(b.full_name);
+        return mul * (new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+    });
 
     if (loading) {
         return (
@@ -62,7 +53,7 @@ export function CustomersTable({ search, users, loading }: CustomersTableProps) 
                     </tr>
                 </thead>
                 <tbody>
-                    {paginated.map((c) => (
+                    {sorted.map((c) => (
                         <tr key={c.id} className="border-b border-stone-50 hover:bg-stone-50/60 transition-colors">
                             <td className="px-5 py-3.5">
                                 <div className="flex items-center gap-3">
@@ -85,13 +76,15 @@ export function CustomersTable({ search, users, loading }: CustomersTableProps) 
                             <td className="px-5 py-3.5 text-sm text-stone-400 hidden md:table-cell">{formatDate(c.created_at)}</td>
                         </tr>
                     ))}
-                    {filtered.length === 0 && (
-                        <tr><td colSpan={3} className="text-center py-20 font-serif italic text-stone-300 text-lg">No customers found.</td></tr>
+                    {sorted.length === 0 && (
+                        <tr><td colSpan={3} className="text-center py-20 font-serif italic text-stone-300 text-lg">
+                            {search ? "No customers match your search." : "No customers found."}
+                        </td></tr>
                     )}
                 </tbody>
             </table>
         </div>
-        <Pagination currentPage={safePage} totalPages={totalPages} onPageChange={setPage} />
+        <Pagination currentPage={page} totalPages={totalPages} onPageChange={onPageChange} />
         </>
     );
 }

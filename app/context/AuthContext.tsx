@@ -30,8 +30,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
+    let cachedUser: User | null = null;
     try {
-      setUser(JSON.parse(cached));
+      cachedUser = JSON.parse(cached);
     } catch {
       localStorage.removeItem("ole_user");
       setIsLoading(false);
@@ -43,13 +44,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const refresh = async () => {
       try {
         const ok = await authApi.refreshToken(controller.signal);
-        if (!ok) {
-          setUser(null);
+        if (ok) {
+          // Only trust cached user data after the server confirms the session is valid
+          setUser(cachedUser);
+        } else {
           localStorage.removeItem("ole_user");
         }
       } catch (err) {
         if (err instanceof DOMException && err.name === "AbortError") return;
-        setUser(null);
         localStorage.removeItem("ole_user");
       } finally {
         setIsLoading(false);

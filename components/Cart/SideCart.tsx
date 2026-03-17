@@ -4,6 +4,7 @@ import { useCart } from "@/app/context/CartContext";
 import { useCurrency } from "@/app/context/CurrencyContext";
 import { X, Minus, Plus, ShoppingBag } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function SideCart() {
     const { cart, isCartOpen, setIsCartOpen, updateQuantity, removeFromCart, totalPrice, isLoading } = useCart();
@@ -76,9 +77,13 @@ export default function SideCart() {
                             <p className="text-[10px] text-stone-400 leading-relaxed italic">
                                 Shipping is free for orders worldwide.
                             </p>
-                            <button className="w-full bg-stone-900 text-white py-5 text-[10px] font-bold uppercase tracking-[0.3em] hover:bg-brand transition-all shadow-xl active:scale-95">
+                            <Link
+                                href="/checkout"
+                                onClick={() => setIsCartOpen(false)}
+                                className="block w-full bg-stone-900 text-white py-5 text-[10px] font-bold uppercase tracking-[0.3em] hover:bg-brand transition-all shadow-xl active:scale-95 text-center"
+                            >
                                 Checkout Now
-                            </button>
+                            </Link>
                         </div>
                     )}
                 </div>

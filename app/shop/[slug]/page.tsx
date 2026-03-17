@@ -7,7 +7,7 @@ import type { ApiProduct } from "@/lib/api/types";
 const siteUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://ole-knitwear.com";
 
 export async function generateStaticParams() {
-  const products = await getProducts();
+  const { data: products } = await getProducts({ limit: 200 });
   return products.map((p) => ({ slug: p.slug }));
 }
 
@@ -37,7 +37,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   let relatedProducts: ApiProduct[] = [];
   if (product.category_id) {
     try {
-      const categoryProducts = await getProducts(undefined, product.category_id);
+      const { data: categoryProducts } = await getProducts({ categoryId: product.category_id, limit: 10 });
       relatedProducts = categoryProducts
         .filter(p => p.slug !== product.slug)
         .slice(0, 4);

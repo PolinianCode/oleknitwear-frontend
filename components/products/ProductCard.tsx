@@ -72,8 +72,9 @@ export default function ProductCard({ product, categories }: ProductCardProps) {
         {images[1] && (
           <Image
             src={images[1]}
-            alt={`${product.name} alternate`}
+            alt={`${product.name} — alternate view`}
             fill
+            loading="lazy"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
             className={`object-cover transition-opacity duration-700 ease-in-out ${isHovered ? "opacity-100 scale-105" : "opacity-0"
               }`}
