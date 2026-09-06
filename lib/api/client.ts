@@ -1,6 +1,8 @@
 const isServer = typeof window === "undefined";
 export const BASE_URL = isServer ? (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080") : "";
 
+const CLOCK_SKEW_MS = 60_000;
+
 export class ApiError extends Error {
     status: number;
 
@@ -10,7 +12,52 @@ export class ApiError extends Error {
     }
 }
 
+export function readSessionExp(): number | null {
+    if (isServer) return null;
+    const match = document.cookie.match(/(?:^|;\s*)session_exp=(\d+)/);
+    return match ? Number(match[1]) : null;
+}
+
+function hasLiveAccessToken(): boolean {
+    const exp = readSessionExp();
+    return exp !== null && exp * 1000 > Date.now() + CLOCK_SKEW_MS;
+}
+
+async function postRefresh(): Promise<boolean> {
+    try {
+        const res = await fetch(`${BASE_URL}/api/auth/refresh`, {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+        });
+        return res.ok;
+    } catch {
+        return false;
+    }
+}
+
 let refreshPromise: Promise<boolean> | null = null;
+
+export async function refreshSession(): Promise<boolean> {
+    if (isServer) return false;
+
+    if (!refreshPromise) {
+        refreshPromise = (async () => {
+            if (typeof navigator !== "undefined" && navigator.locks) {
+                const granted: unknown = await navigator.locks.request("ole-auth-refresh", async () => {
+                    if (hasLiveAccessToken()) return true;
+                    return postRefresh();
+                });
+                return granted === true;
+            }
+            return postRefresh();
+        })().finally(() => {
+            refreshPromise = null;
+        });
+    }
+
+    return refreshPromise;
+}
 
 export async function fetchApi<T>(
     endpoint: string,
@@ -34,21 +81,8 @@ export async function fetchApi<T>(
         throw new ApiError(0, "Network error");
     }
 
-    if (res.status === 401 && !endpoint.startsWith("/api/auth/")) {
-        if (!refreshPromise) {
-            refreshPromise = fetch(`${BASE_URL}/api/auth/refresh`, {
-                method: "POST",
-                credentials: "include",
-                headers: { "Content-Type": "application/json" },
-            })
-                .then((r) => r.ok)
-                .catch(() => false)
-                .finally(() => {
-                    refreshPromise = null;
-                });
-        }
-
-        const isRefreshed = await refreshPromise;
+    if (!isServer && res.status === 401 && !endpoint.startsWith("/api/auth/")) {
+        const isRefreshed = await refreshSession();
 
         if (isRefreshed) {
             res = await fetch(url, opts);
@@ -57,11 +91,23 @@ export async function fetchApi<T>(
         }
     }
 
-    const json = await res.json();
+    const body = await res.text();
+    let json: { success?: boolean; error?: unknown } | null = null;
 
-    if (!res.ok || json.success === false) {
+    if (body) {
+        try {
+            json = JSON.parse(body);
+        } catch {
+            throw new ApiError(
+                res.status,
+                res.ok ? "Malformed response from server" : `Request failed (${res.status})`
+            );
+        }
+    }
+
+    if (!res.ok || json?.success === false) {
         let errorMessage = "Something went wrong";
-        if (json.error) {
+        if (json?.error) {
             if (typeof json.error === "string") errorMessage = json.error;
             else if (typeof json.error === "object") errorMessage = JSON.stringify(json.error);
             else errorMessage = String(json.error);
