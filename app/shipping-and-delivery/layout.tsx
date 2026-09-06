@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     },
 };
 
-export default function SizingDeliveryLayout({
+export default function ShippingAndDeliveryLayout({
     children,
 }: {
     children: React.ReactNode;

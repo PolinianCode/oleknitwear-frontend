@@ -76,7 +76,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             priority: 0.6,
         },
         {
-            url: `${baseUrl}/sizing-delivery`,
+            url: `${baseUrl}/shipping-and-delivery`,
             lastModified: new Date('2025-01-01'),
             changeFrequency: 'yearly' as const,
             priority: 0.6,
