@@ -11,7 +11,7 @@ const slides = [
     src: "/images/slide3.png",
     alt: "Woman wearing a cozy hand-knitted sweater by Ole Knitwear",
     title: "Warmth You Can Feel",
-    subtitle: "HANDMADE WITH LOVE",
+    subtitle: "Colour. Texture. A little bit of Magic.",
     buttonText: "Shop Collection",
     buttonLink: '/shop',
     isButtonPresent: true,

@@ -7,24 +7,24 @@ export const metadata: Metadata = {
     description: "Ole Knitwear shipping and delivery information. Free worldwide shipping on all orders. In-stock items ship within 1-2 days, pre-orders crafted in up to 15 days.",
     keywords: ["free shipping knitwear", "worldwide delivery", "Ole Knitwear shipping", "knitwear delivery times", "free worldwide shipping"],
     alternates: {
-        canonical: `${baseUrl}/sizing-delivery`,
+        canonical: `${baseUrl}/shipping-and-delivery`,
     },
     openGraph: {
-        title: "Sizing & Delivery | Ole Knitwear",
+        title: "Shipping & Delivery | Ole Knitwear",
         description: "Ole Knitwear sizing guide and delivery information. Free worldwide shipping on all orders.",
-        url: `${baseUrl}/sizing-delivery`,
+        url: `${baseUrl}/shipping-and-delivery`,
         type: "website",
         images: [{
             url: '/og-image.png',
             width: 1200,
             height: 630,
-            alt: 'Ole Knitwear Sizing & Delivery',
+            alt: 'Ole Knitwear Shipping & Delivery',
         }],
     },
     twitter: {
         card: "summary_large_image",
-        title: "Sizing & Delivery | Ole Knitwear",
-        description: "Ole Knitwear sizing guide and delivery information. Free worldwide shipping on all orders.",
+        title: "Shipping & Delivery | Ole Knitwear",
+        description: "Ole Knitwear shipping and delivery information. Free worldwide shipping on all orders. In-stock items ship within 1-2 days, pre-orders crafted in up to 15 days.",
         images: ['/og-image.png'],
     },
 };

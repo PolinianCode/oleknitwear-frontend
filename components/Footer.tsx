@@ -5,12 +5,12 @@ export default function Footer() {
     return (
         <footer className="bg-brand pt-16 pb-8 text-white">
             <div className="container mx-auto px-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-16">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
 
                     <div className="space-y-6">
-                        <h3 className="text-xs font-bold tracking-[0.2em] uppercase font-sans">
-                            Contact
-                        </h3>
+                        <Link href="/contact-us" className="text-xs font-bold tracking-[0.2em] uppercase font-sans block font-sans w-fit hover:opacity-70 transition-opacity font-bold">
+                            Contact Us
+                        </Link>
                         <p className="text-sm leading-loose text-white/80 font-sans max-w-xs">
                             If you would like to get in touch with us, feel free to reach out by email or phone.
                             We’d be happy to assist you with any inquiries.
@@ -34,11 +34,8 @@ export default function Footer() {
                             <Link href="/shop" className="hover:opacity-70 transition-opacity">
                                 Shop All
                             </Link>
-                            <Link href="/contact-us" className="hover:opacity-70 transition-opacity">
-                                Contact Us
-                            </Link>
-                            <Link href="/sizing-delivery" className="hover:opacity-70 transition-opacity">
-                                Sizing guide & Delivery terms
+                            <Link href="/shipping-and-delivery" className="hover:opacity-70 transition-opacity">
+                                Shipping & delivery
                             </Link>
                             <Link href="/care" className="hover:opacity-70 transition-opacity">
                                 Care Guide
@@ -46,6 +43,20 @@ export default function Footer() {
                         </nav>
                     </div>
 
+                    {/* Legal */}
+                    <div className="space-y-6">
+                        <h3 className="text-xs font-bold tracking-[0.2em] uppercase font-sans">
+                            Legal
+                        </h3>
+                        <nav className="flex flex-col gap-4 text-sm font-sans text-white/90">
+                            <Link href="/care" className="hover:opacity-70 transition-opacity">
+                                Terms & Conditions
+                            </Link>
+                            <Link href="/care" className="hover:opacity-70 transition-opacity">
+                                Privacy Policy
+                            </Link>
+                        </nav>
+                    </div>
                     {/* SOCIALS */}
                     <div className="space-y-6">
                         <h3 className="text-xs font-bold tracking-[0.2em] uppercase font-sans">

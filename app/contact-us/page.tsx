@@ -40,6 +40,15 @@ export default function ContactPage() {
                                         </div>
                                     </div>
                                 </a>
+                                <a href="https://wa.me/48787392507" target="_blank" rel="noopener noreferrer" className="block">
+                                    <div className="flex items-start gap-4 group">
+                                        <div className="mt-1 text-stone-400 group-hover:text-brand transition-colors"><Instagram size={20} /></div>
+                                        <div>
+                                            <p className="text-[10px] uppercase tracking-widest font-bold text-stone-400 mb-1">WhatsApp</p>
+                                            <p className="text-stone-900 font-light hover:text-brand transition-colors">+48 787 392 507</p>
+                                        </div>
+                                    </div>
+                                </a>
                             </div>
 
                             <div className="pt-8 border-t border-stone-200">
