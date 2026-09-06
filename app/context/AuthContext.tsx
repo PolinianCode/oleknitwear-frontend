@@ -2,15 +2,14 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import * as authApi from "@/lib/api/auth";
+import type { AuthUser } from "@/lib/api/auth";
+import { readSessionExp, refreshSession } from "@/lib/api/client";
 
-interface User {
-  email: string;
-  role: "admin" | "customer";
-  full_name?: string;
-}
+const CLOCK_SKEW_MS = 60_000;
+const CACHE_KEY = "ole_user";
 
 interface AuthContextType {
-  user: User | null;
+  user: AuthUser | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, fullName?: string) => Promise<void>;
@@ -19,55 +18,80 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+function readCachedUser(): AuthUser | null {
+  try {
+    const cached = localStorage.getItem(CACHE_KEY);
+    return cached ? (JSON.parse(cached) as AuthUser) : null;
+  } catch {
+    localStorage.removeItem(CACHE_KEY);
+    return null;
+  }
+}
+
+function isAbortError(err: unknown): boolean {
+  return err instanceof DOMException && err.name === "AbortError";
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const cached = localStorage.getItem("ole_user");
-    if (!cached) {
-      setIsLoading(false);
-      return;
-    }
-
-    let cachedUser: User | null = null;
-    try {
-      cachedUser = JSON.parse(cached);
-    } catch {
-      localStorage.removeItem("ole_user");
-      setIsLoading(false);
-      return;
-    }
-
     const controller = new AbortController();
+    let cancelled = false;
 
-    const refresh = async () => {
-      try {
-        const ok = await authApi.refreshToken(controller.signal);
-        if (ok) {
-          // Only trust cached user data after the server confirms the session is valid
-          setUser(cachedUser);
-        } else {
-          localStorage.removeItem("ole_user");
-        }
-      } catch (err) {
-        if (err instanceof DOMException && err.name === "AbortError") return;
-        localStorage.removeItem("ole_user");
-      } finally {
+    const init = async () => {
+      const cached = readCachedUser();
+      const exp = readSessionExp();
+
+      if (exp === null && !cached) {
         setIsLoading(false);
+        return;
+      }
+
+      const hasLiveToken = exp !== null && exp * 1000 > Date.now() + CLOCK_SKEW_MS;
+
+      if (hasLiveToken && cached) {
+        setUser(cached);
+        setIsLoading(false);
+      }
+
+      try {
+        if (!hasLiveToken) {
+          const refreshed = await refreshSession();
+          if (cancelled) return;
+
+          if (!refreshed) {
+            setUser(null);
+            setIsLoading(false);
+            return;
+          }
+        }
+
+        const confirmed = await authApi.getMe(controller.signal);
+        if (cancelled) return;
+        setUser(confirmed);
+      } catch (err) {
+        if (isAbortError(err) || cancelled) return;
+        setUser(null);
+      } finally {
+        if (!cancelled) setIsLoading(false);
       }
     };
 
-    refresh();
+    init();
 
-    return () => controller.abort();
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
   }, []);
 
   useEffect(() => {
     if (user) {
-      localStorage.setItem("ole_user", JSON.stringify(user));
+      localStorage.setItem(CACHE_KEY, JSON.stringify(user));
     } else {
-      localStorage.removeItem("ole_user");
+      localStorage.removeItem(CACHE_KEY);
     }
   }, [user]);
 

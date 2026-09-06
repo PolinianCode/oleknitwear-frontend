@@ -1,7 +1,7 @@
 import { fetchApi, BASE_URL } from "./client";
 import type { AuthLoginResponse } from "./types";
 
-interface AuthUser {
+export interface AuthUser {
     email: string;
     role: "admin" | "customer";
     full_name?: string;
@@ -24,6 +24,11 @@ export async function register(email: string, password: string, fullName?: strin
 
 export async function logout(): Promise<void> {
     await fetchApi("/api/auth/logout", { method: "POST" });
+}
+
+export async function getMe(signal?: AbortSignal): Promise<AuthUser> {
+    const res = await fetchApi<AuthLoginResponse>("/api/auth/me", { signal });
+    return res.user;
 }
 
 export async function refreshToken(signal?: AbortSignal): Promise<boolean> {
