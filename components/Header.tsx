@@ -106,7 +106,7 @@ export default function Header() {
             </div>
           </div>
           <Link href="/care" className="hover:text-brand transition-colors">Care Guide</Link>
-          <Link href="/sizing-delivery" className="hover:text-brand transition-colors">Sizing & Delivery</Link>
+          <Link href="/shipping-and-delivery" className="hover:text-brand transition-colors">Shipping & delivery</Link>
           <Link href="/contact-us" className="hover:text-brand transition-colors">Contact Us</Link>
         </nav>
 
@@ -231,7 +231,7 @@ export default function Header() {
             </div>
           </div>
           <Link href="/care" className="text-3xl font-serif text-stone-900 border-b border-stone-100 pb-4">Care Guide</Link>
-          <Link href="/sizing-delivery" className="text-3xl font-serif text-stone-900 border-b border-stone-100 pb-4">Sizing & Delivery</Link>
+          <Link href="/shipping-and-delivery" className="text-3xl font-serif text-stone-900 border-b border-stone-100 pb-4">Shipping & Delivery</Link>
           <Link href="/contact-us" className="text-3xl font-serif text-stone-900 border-b border-stone-100 pb-4">Contact Us</Link>
 
           <div className="mt-8">
